@@ -23,6 +23,9 @@ return new class extends Migration
             $table->timestamp('ultima_notificacao')->nullable();
             $table->integer('qtd_notificacoes')->default(0);
 
+            // Atributos de PMOC.
+            $table->boolean('pmoc')->default(false);
+
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
         });

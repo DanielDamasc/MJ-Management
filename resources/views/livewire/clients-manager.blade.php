@@ -94,6 +94,15 @@
                                     </select>
                                     @error('tipo') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                 </div>
+
+                                <div class="col-span-1 md:col-span-1 lg:col-span-1 flex items-end pb-3">
+                                    <div class="flex items-center h-5">
+                                        <input id="pmoc" wire:model="pmoc" type="checkbox"
+                                            class="w-4 h-4 text-secondary-600 bg-primary-50 border-primary-300 rounded focus:ring-secondary-500 focus:ring-2">
+                                        <label for="pmoc" class="ml-2 text-sm font-medium text-primary-700">PMOC</label>
+                                    </div>
+                                    @error('pmoc') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
                             </div>
 
                             <div class="pt-2 border-t border-primary-100">

@@ -21,12 +21,14 @@ class Client extends Model
         'email',
         'tipo', // residencial ou comercial
         'ultima_notificacao',
-        'qtd_notificacoes'
+        'qtd_notificacoes',
+        'pmoc',
     ];
 
     // Converte automaticamente o dado que vem do banco para o datetime do Carbon.
     protected $casts = [
         'ultima_notificacao' => 'datetime',
+        'pmoc' => 'boolean'
     ];
 
     // Accessor para exibir telefone formatado.

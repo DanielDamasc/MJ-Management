@@ -30,6 +30,7 @@ class ClientFactory extends Factory
             'telefone' => $this->gerarTelefoneCelular(),
             'email' => fake()->unique()->safeEmail(),
             'tipo' => $tipo,
+            'pmoc' => fake()->boolean(),
 
             // 70% de chance de ser null e 30% de ter uma data.
             'ultima_notificacao' => fake()->optional(0.3)->dateTimeBetween('-1 year', 'now'),

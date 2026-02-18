@@ -27,6 +27,7 @@ class ClientsManager extends Component
     public $telefone = '';
     public $email = '';
     public $tipo = '';
+    public $pmoc = false;
 
     // Atributos de Endereço.
     public $cep = '';
@@ -63,6 +64,7 @@ class ClientsManager extends Component
                 'string',
                 Rule::in(['residencial', 'comercial']),
             ],
+            'pmoc' => 'boolean',
 
             'cep' => 'nullable|string|max:9',
             'rua' => [
@@ -168,6 +170,7 @@ class ClientsManager extends Component
             'telefone',
             'email',
             'tipo',
+            'pmoc',
             'clientId',
         ]);
         $this->clearAddress();
@@ -186,6 +189,7 @@ class ClientsManager extends Component
                 'telefone' => $this->telefone,
                 'email' => $this->email,
                 'tipo' => $this->tipo,
+                'pmoc' => $this->pmoc
             ],
             [
                 'cep' => $this->cep,
@@ -219,6 +223,7 @@ class ClientsManager extends Component
             $this->telefone = $client->telefone;
             $this->email = $client->email ?? ''; // E-mail pode ser null.
             $this->tipo = $client->tipo;
+            $this->pmoc = $client->pmoc;
 
             // Buscando dados do endereço.
             if ($client->address) {
@@ -252,6 +257,7 @@ class ClientsManager extends Component
                     'telefone' => $this->telefone,
                     'email' => $this->email,
                     'tipo' => $this->tipo,
+                    'pmoc' => $this->pmoc
                 ],
                 [
                     'cep' => $this->cep,
