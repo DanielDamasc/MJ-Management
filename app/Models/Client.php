@@ -22,7 +22,10 @@ class Client extends Model
         'tipo', // residencial ou comercial
         'ultima_notificacao',
         'qtd_notificacoes',
+
         'pmoc',
+        'razao_social',
+        'cnpj'
     ];
 
     // Converte automaticamente o dado que vem do banco para o datetime do Carbon.
@@ -53,6 +56,21 @@ class Client extends Model
                 return $value;
             }
         );
+    }
+
+    protected function cnpj(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => empty($value) ?
+            null : preg_replace('/[^0-9]/', '', $value),
+
+            get: fn ($value) => empty($value) ?
+            null : $this->formatCnpj($value),
+        );
+    }
+
+    private function formatCnpj($value) {
+        return preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "$1.$2.$3/$4-$5", $value);
     }
 
     public function getActivitylogOptions(): LogOptions

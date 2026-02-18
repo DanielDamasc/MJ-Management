@@ -25,6 +25,8 @@ return new class extends Migration
 
             // Atributos de PMOC.
             $table->boolean('pmoc')->default(false);
+            $table->string('razao_social')->nullable();
+            $table->string('cnpj', 14)->unique()->nullable();
 
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();

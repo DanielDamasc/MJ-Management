@@ -27,7 +27,11 @@ class ClientsManager extends Component
     public $telefone = '';
     public $email = '';
     public $tipo = '';
+
+    // Atributos do cliente PMOC.
     public $pmoc = false;
+    public $razao_social = null;
+    public $cnpj = null;
 
     // Atributos de Endereço.
     public $cep = '';
@@ -64,7 +68,16 @@ class ClientsManager extends Component
                 'string',
                 Rule::in(['residencial', 'comercial']),
             ],
+
             'pmoc' => 'boolean',
+            'razao_social' => [
+                'nullable','string','max:255',
+                Rule::requiredIf(fn () => $this->pmoc == true)
+            ],
+            'cnpj' => [
+                'nullable','string',
+                Rule::requiredIf(fn () => $this->pmoc == true)
+            ],
 
             'cep' => 'nullable|string|max:9',
             'rua' => [
@@ -171,6 +184,8 @@ class ClientsManager extends Component
             'email',
             'tipo',
             'pmoc',
+            'razao_social',
+            'cnpj',
             'clientId',
         ]);
         $this->clearAddress();
@@ -189,7 +204,9 @@ class ClientsManager extends Component
                 'telefone' => $this->telefone,
                 'email' => $this->email,
                 'tipo' => $this->tipo,
-                'pmoc' => $this->pmoc
+                'pmoc' => $this->pmoc,
+                'razao_social' => $this->razao_social,
+                'cnpj' => $this->cnpj
             ],
             [
                 'cep' => $this->cep,
@@ -223,7 +240,18 @@ class ClientsManager extends Component
             $this->telefone = $client->telefone;
             $this->email = $client->email ?? ''; // E-mail pode ser null.
             $this->tipo = $client->tipo;
+
             $this->pmoc = $client->pmoc;
+            // Apenas se for pmoc possui razão social e cnpj.
+            if ($this->pmoc == true) {
+                $this->razao_social = $client->razao_social;
+                $this->cnpj = $client->cnpj;
+            } else {
+                $this->reset([
+                    'razao_social',
+                    'cnpj'
+                ]);
+            }
 
             // Buscando dados do endereço.
             if ($client->address) {
@@ -257,7 +285,9 @@ class ClientsManager extends Component
                     'telefone' => $this->telefone,
                     'email' => $this->email,
                     'tipo' => $this->tipo,
-                    'pmoc' => $this->pmoc
+                    'pmoc' => $this->pmoc,
+                    'razao_social' => $this->razao_social,
+                    'cnpj' => $this->cnpj
                 ],
                 [
                     'cep' => $this->cep,

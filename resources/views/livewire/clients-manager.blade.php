@@ -97,12 +97,37 @@
 
                                 <div class="col-span-1 md:col-span-1 lg:col-span-1 flex items-end pb-3">
                                     <div class="flex items-center h-5">
-                                        <input id="pmoc" wire:model="pmoc" type="checkbox"
+                                        <input id="pmoc" wire:model.live="pmoc" type="checkbox"
                                             class="w-4 h-4 text-secondary-600 bg-primary-50 border-primary-300 rounded focus:ring-secondary-500 focus:ring-2">
                                         <label for="pmoc" class="ml-2 text-sm font-medium text-primary-700">PMOC</label>
                                     </div>
                                     @error('pmoc') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 </div>
+
+                                @if($pmoc)
+                                    <div class="col-span-1 md:col-span-2 lg:col-span-8 transition-all">
+                                        <label class="block mb-1 text-sm font-medium text-primary-700">Razão Social
+                                            <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" wire:model="razao_social"
+                                            class="bg-primary-50 border border-primary-200 text-primary-900 text-sm rounded-lg focus:ring-secondary-500 focus:border-secondary-500 block w-full p-2.5"
+                                            placeholder="Ex: MJ Engenharia LTDA">
+                                        @error('razao_social') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <div class="col-span-1 md:col-span-2 lg:col-span-3 transition-all">
+                                        <label class="block mb-1 text-sm font-medium text-primary-700">CNPJ
+                                            <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" wire:model="cnpj"
+                                            class="bg-primary-50 border border-primary-200 text-primary-900 text-sm rounded-lg focus:ring-secondary-500 focus:border-secondary-500 block w-full p-2.5"
+                                            placeholder="00.000.000/0000-00"
+                                            maxlength="14"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5')">
+                                        @error('cnpj') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                    </div>
+                                @endif
+
                             </div>
 
                             <div class="pt-2 border-t border-primary-100">

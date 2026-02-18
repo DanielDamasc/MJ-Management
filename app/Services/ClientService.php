@@ -14,15 +14,24 @@ class ClientService
     {
         return DB::transaction(function() use ($data, $address) {
             // 1. Limpeza do Telefone
-            $data['telefone'] = $this->limparTelefone($data['telefone']);
+            $data['telefone'] = $this->limparInput($data['telefone']);
 
             // 2. Validação do Telefone
             $this->validateTelefone($data['telefone']);
 
-            // 3. Cria o cliente com os dados
+            // 3. Remove os dados do PMOC caso ele seja desmarcado.
+            $data = $this->uncheckPmoc($data);
+
+            // 4. Valida o cnpj.
+            if ($data['cnpj']) {
+                $data['cnpj'] = $this->limparInput($data['cnpj']);
+                $this->validateCnpj($data['cnpj']);
+            }
+
+            // 4. Cria o cliente com os dados
             $cliente = Client::create($data);
 
-            // 4. Se o cep não for vazio, cria o endereço do cliente
+            // 5. Se o cep não for vazio, cria o endereço do cliente
             if (!empty($address['cep'])) {
                 $cliente->address()->create($address);
             }
@@ -35,12 +44,21 @@ class ClientService
     {
         return DB::transaction(function() use ($client, $data, $address) {
             // 1. Limpeza do Telefone
-            $data['telefone'] = $this->limparTelefone($data['telefone']);
+            $data['telefone'] = $this->limparInput($data['telefone']);
 
             // 2. Validação do Telefone
             $this->validateTelefone($data['telefone']);
 
-            // 3. Se o cep não for vazio, cria ou atualiza o endereço para o cliente.
+            // 3. Remove os dados do PMOC caso ele seja desmarcado.
+            $data = $this->uncheckPmoc($data);
+
+            // 4. Valida o cnpj.
+            if ($data['cnpj']) {
+                $data['cnpj'] = $this->limparInput($data['cnpj']);
+                $this->validateCnpj($data['cnpj'], $client->id);
+            }
+
+            // 5. Se o cep não for vazio, cria ou atualiza o endereço para o cliente.
             if (!empty($address['cep'])) {
                 $client->address()->updateOrCreate(
                     // Busca no banco se existe.
@@ -74,9 +92,9 @@ class ClientService
         });
     }
 
-    private function limparTelefone($phone)
+    private function limparInput($value)
     {
-        return preg_replace('/[^0-9]/', '', $phone);
+        return preg_replace('/[^0-9]/', '', $value);
     }
 
     private function validateTelefone($phone)
@@ -96,6 +114,25 @@ class ClientService
         // if ($query->exists()) {
         //     throw new Exception("O telefone já foi cadastrado.");
         // }
+    }
+
+    private function validateCnpj($cnpj, $ignoreId = null) {
+        
+        // 1. Validação de tamanho.
+        if (Str::of($cnpj)->length() !== 14) {
+            throw new Exception("O cnpj deve conter 14 dígitos.");
+        }
+
+        // 2. Validação de unicidade
+        $query = Client::where('cnpj', $cnpj);
+
+        if ($ignoreId) {
+            $query->where('id', '!=', $ignoreId);
+        }
+
+        if ($query->exists()) {
+            throw new Exception("O cnpj já foi cadastrado.");
+        }
     }
 
     public function loadCep($value)
@@ -118,5 +155,14 @@ class ClientService
 
         // 4. Retorna a resposta
         return $response;
+    }
+
+    private function uncheckPmoc(array $data): array
+    {
+        if ($data['pmoc'] == false) {
+            $data['razao_social'] = $data['cnpj'] = null;
+        }
+
+        return $data;
     }
 }
