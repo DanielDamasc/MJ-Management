@@ -117,10 +117,10 @@ class ClientService
     }
 
     private function validateCnpj($cnpj, $ignoreId = null) {
-        
+
         // 1. Validação de tamanho.
         if (Str::of($cnpj)->length() !== 14) {
-            throw new Exception("O cnpj deve conter 14 dígitos.");
+            throw new Exception("O CNPJ deve conter 14 dígitos.");
         }
 
         // 2. Validação de unicidade
@@ -131,7 +131,7 @@ class ClientService
         }
 
         if ($query->exists()) {
-            throw new Exception("O cnpj já foi cadastrado.");
+            throw new Exception("CNPJ já cadastrado.");
         }
     }
 
