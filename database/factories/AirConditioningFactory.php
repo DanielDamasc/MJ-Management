@@ -44,6 +44,10 @@ class AirConditioningFactory extends Factory
 
             // data da próxima higienização
             'prox_higienizacao' => fake()->dateTimeBetween('now', '+6 months')->format('Y-m-d'),
+
+            'area_climatizada' => null,
+            'numero_ocupantes' => null,
+            'estado_conservacao' => null,
         ];
     }
 

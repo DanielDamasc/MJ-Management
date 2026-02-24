@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\EstadoConservacao;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
@@ -27,6 +28,15 @@ class AirConditioning extends Model
 
         // data da próxima higienização
         'prox_higienizacao',
+
+        // colunas pmoc
+        'area_climatizada',
+        'numero_ocupantes',
+        'estado_conservacao',
+    ];
+
+    public $casts = [
+        'estado_conservacao' => EstadoConservacao::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
