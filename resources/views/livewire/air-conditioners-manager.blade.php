@@ -181,6 +181,25 @@
                                         @error('estado_conservacao') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                     </div>
 
+                                    <div class="col-span-1 md:col-span-12 pt-4 border-t border-gray-200 mt-1">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Plano de Manutenção PMOC
+                                        </label>
+                                        <select wire:model="plano_id"
+                                            class="h-10 bg-white border border-gray-300 rounded-lg outline-none w-full focus:border-blue-500 focus:ring-blue-500 shadow-sm px-3">
+                                            <option value="">Selecione...</option>
+
+                                            @foreach($planos as $plano)
+                                                <option value="{{ $plano->id }}">{{ $plano->plan }}</option>
+                                            @endforeach
+
+                                        </select>
+                                        @error('plano_id') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            O plano selecionado definirá as rotinas de manutenção obrigatórias para este equipamento.
+                                        </p>
+                                    </div>
+
                                 </div>
                             </div>
                         @endif
