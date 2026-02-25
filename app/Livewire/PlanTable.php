@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\PmocPlan;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Blade;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
@@ -82,6 +83,10 @@ final class PlanTable extends PowerGridComponent
     public function actions(PmocPlan $row): array
     {
         return [
+            Button::add('delete')
+                ->slot(Blade::render('<x-heroicon-o-trash class="w-5 h-5" />'))
+                ->class('text-red-600 hover:text-red-800 p-1 transition-colors')
+                ->dispatchTo('pmoc-manager', 'confirm-plan-delete', ['id' => $row->id]),
         ];
     }
 

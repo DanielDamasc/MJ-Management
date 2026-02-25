@@ -40,4 +40,14 @@ class PlanService {
 
         });
     }
+
+    public function delete(PmocPlan $plan)
+    {
+        // Validação caso plano já esteja vinculado a ar-condicionado.
+        if ($plan->airConditioners()->exists()) {
+            throw new Exception("Não se pode deletar um plano já vinculado a um equipamento.");
+        }
+
+        return $plan->delete();
+    }
 }

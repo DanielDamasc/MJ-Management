@@ -11,4 +11,9 @@ class TaskService {
 
         return $tarefa;
     }
+
+    public function delete(PmocTask $task)
+    {
+        return $task->delete();
+    }
 }
