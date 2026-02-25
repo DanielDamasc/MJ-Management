@@ -83,6 +83,11 @@ final class PlanTable extends PowerGridComponent
     public function actions(PmocPlan $row): array
     {
         return [
+            Button::add('details')
+                ->slot(Blade::render('<x-heroicon-m-square-3-stack-3d class="w-5 h-5" />'))
+                ->class('text-primary-600 hover:text-primary-800 p-1 transition-colors')
+                ->dispatchTo('pmoc-manager', 'open-plan-tasks', ['id' => $row->id]),
+
             Button::add('delete')
                 ->slot(Blade::render('<x-heroicon-o-trash class="w-5 h-5" />'))
                 ->class('text-red-600 hover:text-red-800 p-1 transition-colors')

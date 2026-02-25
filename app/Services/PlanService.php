@@ -50,4 +50,17 @@ class PlanService {
 
         return $plan->delete();
     }
+
+    public function showTasks(PmocPlan $plan)
+    {
+        $tasks = $plan->tasks->map(function($task) {
+            return [
+                'id' => $task->id,
+                'task' => $task->task,
+                'periodicidade' => \App\Enums\PmocPeriodicidade::from($task->pivot->periodicidade)->label(),
+            ];
+        });
+
+        return $tasks->toArray();
+    }
 }

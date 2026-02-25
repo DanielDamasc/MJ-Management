@@ -34,13 +34,25 @@ class PmocManager extends Component
     public $showPlanCreate = false;
     public $showTaskCreate = false;
     public $showDelete = false;
+    public $showPlanTasks = false;
 
     public $planId = null;
     public $taskId = null;
 
+    public $planTasks = [];
+    public $planLabel = '';
+
     public function closeModal()
     {
-        $this->showPlanCreate = $this->showTaskCreate = $this->showDelete = false;
+        // Se estiver fechando o modal de tasks de um plano, limpa as tasks.
+        if ($this->showPlanTasks) {
+            $this->reset([
+                'planTasks',
+                'planLabel'
+            ]);
+        }
+
+        $this->showPlanCreate = $this->showTaskCreate = $this->showDelete = $this->showPlanTasks = false;
         $this->resetValidation();
     }
 
@@ -148,6 +160,26 @@ class PmocManager extends Component
             }
 
             return ;
+        }
+    }
+
+    #[On('open-plan-tasks')]
+    public function openPlanTasks($id)
+    {
+        try {
+            // Busca os dados.
+            $plan = PmocPlan::with('tasks')
+            ->findOrFail($id);
+
+            // Prepara as variáveis.
+            $this->planLabel = $plan->plan;
+            $this->planTasks = $this->planService->showTasks($plan);
+
+            // Mostra o modal.
+            $this->showPlanTasks = true;
+
+        } catch (Exception $e) {
+            $this->dispatch('notify-error', $e->getMessage());
         }
     }
 

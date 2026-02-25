@@ -274,4 +274,80 @@
         </div>
     @endif
 
+    @if($showPlanTasks)
+        <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-primary-950/75 backdrop-blur-sm p-4 md:inset-0 h-modal md:h-full transition-opacity">
+
+            <div class="relative w-full max-w-4xl h-full md:h-auto">
+
+                <div class="relative bg-white rounded-xl shadow-2xl border border-primary-100">
+
+                    <div class="flex items-center justify-between p-5 border-b border-primary-50 rounded-t bg-primary-50/50">
+                        <div>
+                            <h3 class="text-xl font-bold text-primary-900">
+                                Tarefas do Plano
+                            </h3>
+                            <p class="text-sm text-primary-600 font-medium mt-1">
+                                {{ $planLabel }}
+                            </p>
+                        </div>
+
+                        <button wire:click="closeModal" type="button" class="text-primary-400 bg-transparent hover:bg-primary-100 hover:text-primary-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center transition-colors">
+                            <x-heroicon-o-x-mark class="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    <div class="p-6">
+                        <div class="overflow-hidden border border-primary-200 rounded-lg shadow-sm">
+                            <div class="max-h-[60vh] overflow-y-auto">
+                                <table class="w-full text-sm text-left text-primary-700">
+                                    <thead class="text-xs text-primary-700 uppercase bg-primary-100 sticky top-0 z-10 shadow-sm">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3">Id</th>
+                                            <th scope="col" class="px-6 py-3">Descrição da Tarefa</th>
+                                            <th scope="col" class="px-6 py-3 w-40 text-center">Periodicidade</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-primary-50">
+                                        @forelse($planTasks as $planTask)
+                                            <tr class="bg-white hover:bg-primary-50/50 transition-colors">
+
+                                                <td class="px-6 py-4 font-medium text-primary-900">
+                                                    {{ $planTask['id'] }}
+                                                </td>
+
+                                                <td class="px-6 py-4 font-medium text-primary-900">
+                                                    {{ $planTask['task'] }}
+                                                </td>
+
+                                                <td class="px-6 py-4 text-center">
+                                                    <span class="bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-blue-200">
+                                                        {{ $planTask['periodicidade'] }}
+                                                    </span>
+                                                </td>
+
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="px-6 py-8 text-center text-primary-500">
+                                                    Nenhuma tarefa vinculada a este plano.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end p-5 border-t border-gray-100 bg-gray-50 rounded-b-xl">
+                        <button wire:click="closeModal" type="button" class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all shadow-md">
+                            Fechar
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    @endif
+
 </div>
