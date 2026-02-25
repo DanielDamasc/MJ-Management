@@ -16,6 +16,7 @@ class AirConditioning extends Model
     protected $fillable = [
         // chave estrangeira
         'cliente_id',
+        'plano_id',
 
         // dados básicos do AC
         'codigo_ac',
@@ -92,5 +93,10 @@ class AirConditioning extends Model
             'id',
             'id')
             ->withPivot('valor');
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(PmocPlan::class, 'plano_id');
     }
 }
