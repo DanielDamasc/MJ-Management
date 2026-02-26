@@ -145,6 +145,26 @@
                                         placeholder="Detalhes sobre a aplicação deste plano..."></textarea>
                                     @error('planForm.descricao') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                 </div>
+
+                                {{-- CHECKBOX DO PLANO PADRÃO --}}
+                                <div class="col-span-1 md:col-span-2">
+                                    <div class="flex items-start bg-primary-50/50 border border-primary-100 p-4 rounded-lg transition-colors hover:bg-primary-50">
+                                        <div class="flex items-center h-5 mt-0.5">
+                                            <input id="padrao" type="checkbox" wire:model="planForm.padrao"
+                                                class="w-4 h-4 text-secondary-600 bg-white border-primary-300 rounded focus:ring-secondary-500 focus:ring-2 cursor-pointer">
+                                        </div>
+                                        <div class="ml-3">
+                                            <label for="padrao" class="text-sm font-semibold text-primary-900 cursor-pointer">
+                                                Definir como Plano Padrão
+                                            </label>
+                                            <p class="text-sm text-primary-600 mt-1">
+                                                Este plano será vinculado automaticamente a todos os equipamentos que não possuem um plano de manutenção definido.
+                                                <br><span class="text-primary-400 italic">Nota: Caso já exista outro plano definido como padrão, ele perderá este status.</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    @error('planForm.padrao') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                </div>
                             </div>
 
                             <div class="pt-4 border-t border-primary-100">

@@ -17,6 +17,7 @@ class PmocPlan extends Model
     protected $fillable = [
         'plan',
         'descricao',
+        'padrao',
     ];
 
     public function getActivitylogOptions(): LogOptions
