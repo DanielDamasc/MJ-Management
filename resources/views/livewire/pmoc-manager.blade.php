@@ -52,7 +52,7 @@
     </div>
 
     {{-- modals --}}
-    @if ($showTaskCreate)
+    @if ($showTaskCreate || $showTaskEdit)
         <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-primary-950/75 backdrop-blur-sm p-4 md:inset-0 h-modal md:h-full transition-opacity">
 
             <div class="relative w-full max-w-xl h-full md:h-auto">
@@ -107,7 +107,7 @@
         </div>
     @endif
 
-    @if ($showPlanCreate)
+    @if ($showPlanCreate || $showPlanEdit)
         <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-primary-950/75 backdrop-blur-sm p-4 md:inset-0 h-modal md:h-full transition-opacity">
 
             <div class="relative w-full max-w-5xl h-full md:h-auto">
@@ -116,7 +116,7 @@
 
                     <div class="flex items-center justify-between p-5 border-b border-primary-50 rounded-t">
                         <h3 class="text-xl font-bold text-primary-900">
-                            Novo Plano de Manutenção
+                            {{ $showPlanCreate ? 'Novo Plano de Manutenção' : 'Editar Plano de Manutenção' }}
                         </h3>
 
                         <button wire:click="closeModal" type="button" class="text-primary-400 bg-transparent hover:bg-primary-50 hover:text-primary-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center transition-colors">
@@ -124,7 +124,7 @@
                         </button>
                     </div>
 
-                    <form wire:submit="savePlan" class="p-6 space-y-8">
+                    <form wire:submit="{{ $showPlanCreate ? 'savePlan' : 'editPlan' }}" class="p-6 space-y-8">
                         <div class="flex flex-col gap-6">
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -222,10 +222,10 @@
                                 Cancelar
                             </button>
 
-                            <button wire:click="savePlan" type="button" class="text-white bg-secondary-500 hover:bg-secondary-600 focus:ring-4 focus:outline-none focus:ring-secondary-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all shadow-md hover:shadow-lg disabled:opacity-50" wire:loading.attr="disabled">
+                            <button wire:click="{{ $showPlanCreate ? 'savePlan' : 'editPlan' }}" type="button" class="text-white bg-secondary-500 hover:bg-secondary-600 focus:ring-4 focus:outline-none focus:ring-secondary-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all shadow-md hover:shadow-lg disabled:opacity-50" wire:loading.attr="disabled">
 
-                                <span wire:loading.remove wire:target="savePlan">Salvar Plano</span>
-                                <span wire:loading wire:target="savePlan">Salvando...</span>
+                                <span wire:loading.remove wire:target="{{ $showPlanCreate ? 'savePlan' : 'editPlan' }}">Salvar Plano</span>
+                                <span wire:loading wire:target="{{ $showPlanCreate ? 'savePlan' : 'editPlan' }}">Salvando...</span>
 
                             </button>
                         </div>

@@ -21,10 +21,16 @@ class PlanService {
             // Prepara o array para fazer o sync das tarefas com o plano.
             $tarefasSync = [];
             foreach ($tarefas as $tarefaId => $opcoes) {
+                // Tudo certo.
                 if (!empty($opcoes['selecionada']) && !empty($opcoes['periodicidade'])) {
                     $tarefasSync[$tarefaId] = [
                         'periodicidade' => $opcoes['periodicidade']
                     ];
+                }
+
+                // Caso tenha selecionado mas não marcou a periodicidade.
+                if (!empty($opcoes['selecionada']) && empty($opcoes['periodicidade'])) {
+                    throw new Exception("Você selecionou uma tarefa, mas esqueceu de definir a periodicidade dela.");
                 }
             }
 
@@ -38,6 +44,44 @@ class PlanService {
 
             return $plano;
 
+        });
+    }
+
+    public function update(PmocPlan $plan, array $data)
+    {
+        // Separa as tarefas do restante dos dados.
+        $tarefas = $data['tarefasSelecionadas'];
+        unset($data['tarefasSelecionadas']);
+
+        return DB::transaction(function() use ($plan, $data, $tarefas) {
+            // Atualiza os dados do plano de manutenção.
+            $plan->update($data);
+
+            // Prepara o array para fazer o sync das novas tasks com o plano.
+            $tarefasSync = [];
+            foreach ($tarefas as $tarefaId => $opcoes) {
+                // Tudo certo.
+                if (!empty($opcoes['selecionada']) && !empty($opcoes['periodicidade'])) {
+                    $tarefasSync[$tarefaId] = [
+                        'periodicidade' => $opcoes['periodicidade']
+                    ];
+                }
+
+                // Caso tenha selecionado mas não marcou a periodicidade.
+                if (!empty($opcoes['selecionada']) && empty($opcoes['periodicidade'])) {
+                    throw new Exception("Você selecionou uma tarefa, mas esqueceu de definir a periodicidade dela.");
+                }
+            }
+
+            // Verifica se formou o array das tarefas.
+            if (empty($tarefasSync)) {
+                throw new Exception("Ocorreu um erro. Nenhuma tarefa pôde ser vinculada.");
+            }
+
+            // Faz o sync das novas tarefas.
+            $plan->tasks()->sync($tarefasSync);
+
+            return $plan;
         });
     }
 

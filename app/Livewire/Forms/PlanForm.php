@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\PmocPlan;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
 
@@ -18,4 +19,23 @@ class PlanForm extends Form
     #[Validate('array')]
     #[Validate('min:1', message: 'Pelo menos 1 tarefa deve ser selecionada.')]
     public $tarefasSelecionadas = [];
+
+    public function setPlan(PmocPlan $plan)
+    {
+        // 1. Preenche para o edit.
+        $this->plan = $plan->plan;
+        $this->descricao = $plan->descricao;
+
+        // 2. Para marcar as checkboxes no edit.
+        $tarefasFormatadas = [];
+
+        foreach ($plan->tasks as $task) {
+            $tarefasFormatadas[$task->id] = [
+                'selecionada' => true,
+                'periodicidade' => $task->pivot->periodicidade
+            ];
+        }
+
+        $this->tarefasSelecionadas = $tarefasFormatadas;
+    }
 }

@@ -78,6 +78,11 @@ final class TaskTable extends PowerGridComponent
     public function actions(PmocTask $row): array
     {
         return [
+            Button::add('edit')
+                ->slot(Blade::render('<x-heroicon-o-pencil-square class="w-5 h-5" />'))
+                ->class('text-secondary-600 hover:text-secondary-800 p-1 mr-2 transition-colors')
+                ->dispatchTo('pmoc-manager', 'open-task-edit', ['id' => $row->id]),
+
             Button::add('delete')
                 ->slot(Blade::render('<x-heroicon-o-trash class="w-5 h-5" />'))
                 ->class('text-red-600 hover:text-red-800 p-1 transition-colors')

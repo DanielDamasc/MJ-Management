@@ -33,6 +33,8 @@ class PmocManager extends Component
     // Atributos auxiliares.
     public $showPlanCreate = false;
     public $showTaskCreate = false;
+    public $showPlanEdit = false;
+    public $showTaskEdit = false;
     public $showDelete = false;
     public $showPlanTasks = false;
 
@@ -52,7 +54,22 @@ class PmocManager extends Component
             ]);
         }
 
-        $this->showPlanCreate = $this->showTaskCreate = $this->showDelete = $this->showPlanTasks = false;
+        // Reseta essas variáveis de edit e delete sempre que fecha o modal.
+        if ($this->planId || $this->taskId) {
+            $this->reset([
+                'planId',
+                'taskId'
+            ]);
+        }
+
+        $this->showPlanCreate =
+        $this->showTaskCreate =
+        $this->showDelete =
+        $this->showPlanTasks =
+        $this->showPlanEdit =
+        $this->showTaskEdit =
+        false;
+
         $this->resetValidation();
     }
 
@@ -160,6 +177,94 @@ class PmocManager extends Component
             }
 
             return ;
+        }
+    }
+
+    #[On('open-plan-edit')]
+    public function openPlanEdit($id)
+    {
+        // Guarda Id para dar o update.
+        $this->planId = $id;
+
+        try {
+            // Busca o plano com as tasks.
+            $plan = PmocPlan::with('tasks')->findOrFail($this->planId);
+
+            // Chama a função no form para preencher as variáveis.
+            $this->planForm->setPlan($plan);
+
+            // Abre o modal.
+            $this->showPlanEdit = true;
+        } catch (Exception $e) {
+            $this->dispatch('notify-error', $e->getMessage());
+        }
+    }
+
+    #[On('open-task-edit')]
+    public function openTaskEdit($id)
+    {
+        // Guarda Id para dar o update.
+        $this->taskId = $id;
+
+        try {
+            // Busca a task.
+            $task = PmocTask::findOrFail($this->taskId);
+
+            // Chama a função no form para preencher as variáveis.
+            $this->taskForm->setTask($task);
+
+            // Abre o modal.
+            $this->showTaskEdit = true;
+        } catch (Exception $e) {
+            $this->dispatch('notify-error', $e->getMessage());
+        }
+    }
+
+    public function editPlan()
+    {
+        // Valida os dados.
+        $this->planForm->validate();
+
+        try {
+            // Busca o plano com as tasks.
+            $plan = PmocPlan::findOrFail($this->planId);
+
+            // Chama o método da service passando a model atual e os novos dados.
+            $this->planService->update($plan, $this->planForm->all());
+
+            // Mensagens de sucesso e atualização da tabela.
+            $this->dispatch('notify-success', 'Plano de Manutenção alterado com sucesso!');
+            $this->dispatch('plan-refresh');
+
+            // Fecha modal somente se sucesso.
+            $this->closeModal();
+
+        } catch (Exception $e) {
+            $this->dispatch('notify-error', $e->getMessage());
+        }
+    }
+
+    public function editTask()
+    {
+        // Valida os dados.
+        $this->taskForm->validate();
+
+        try {
+            // Busca a task.
+            $task = PmocTask::findOrFail($this->taskId);
+
+            // Chama o método da service passando a model atual e os novos dados.
+            $this->taskService->update($task, $this->taskForm->all());
+
+            // Mensagens de sucesso e atualização da tabela.
+            $this->dispatch('notify-success', 'Tarefa de Manutenção alterada com sucesso!');
+            $this->dispatch('task-refresh');
+
+            // Fecha modal somente se sucesso.
+            $this->closeModal();
+
+        } catch (Exception $e) {
+            $this->dispatch('notify-error', $e->getMessage());
         }
     }
 

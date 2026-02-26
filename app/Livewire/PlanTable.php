@@ -85,8 +85,13 @@ final class PlanTable extends PowerGridComponent
         return [
             Button::add('details')
                 ->slot(Blade::render('<x-heroicon-m-square-3-stack-3d class="w-5 h-5" />'))
-                ->class('text-primary-600 hover:text-primary-800 p-1 transition-colors')
+                ->class('text-auxiliar-400 hover:text-auxiliar-600 p-1 transition-colors')
                 ->dispatchTo('pmoc-manager', 'open-plan-tasks', ['id' => $row->id]),
+
+            Button::add('edit')
+                ->slot(Blade::render('<x-heroicon-o-pencil-square class="w-5 h-5" />'))
+                ->class('text-secondary-600 hover:text-secondary-800 p-1 mr-2 transition-colors')
+                ->dispatchTo('pmoc-manager', 'open-plan-edit', ['id' => $row->id]),
 
             Button::add('delete')
                 ->slot(Blade::render('<x-heroicon-o-trash class="w-5 h-5" />'))
