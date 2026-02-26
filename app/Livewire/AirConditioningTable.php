@@ -84,6 +84,9 @@ final class AirConditioningTable extends PowerGridComponent
                 return "<div class='text-gray-800'>{$data_formatada}</div>";
             })
             ->add('prox_higienizacao')
+            ->add('area_climatizada')
+            ->add('numero_ocupantes')
+            ->add('estado_conservacao')
             ->add('created_at');
     }
 

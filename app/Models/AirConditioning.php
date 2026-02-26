@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\EstadoConservacao;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
@@ -15,6 +16,7 @@ class AirConditioning extends Model
     protected $fillable = [
         // chave estrangeira
         'cliente_id',
+        'plano_id',
 
         // dados básicos do AC
         'codigo_ac',
@@ -27,6 +29,15 @@ class AirConditioning extends Model
 
         // data da próxima higienização
         'prox_higienizacao',
+
+        // colunas pmoc
+        'area_climatizada',
+        'numero_ocupantes',
+        'estado_conservacao',
+    ];
+
+    public $casts = [
+        'estado_conservacao' => EstadoConservacao::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -82,5 +93,10 @@ class AirConditioning extends Model
             'id',
             'id')
             ->withPivot('valor');
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(PmocPlan::class, 'plano_id');
     }
 }

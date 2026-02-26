@@ -142,6 +142,68 @@
                             Local do Equipamento
                         </h4>
 
+                        @if ($showPmoc)
+                            <div class="mb-5 p-4 bg-gray-50/50 border border-gray-200 rounded-lg">
+                                <h5 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                                    Informações do PMOC (Ambiente)
+                                </h5>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Área Climatizada (m²)
+                                        </label>
+                                        <input type="number" wire:model="area_climatizada" min="0" placeholder="Ex: 25"
+                                            class="h-10 bg-white border border-gray-300 rounded-lg outline-none w-full focus:border-blue-500 focus:ring-blue-500 shadow-sm px-3">
+                                        @error('area_climatizada') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Nº Ocupantes
+                                        </label>
+                                        <input type="number" wire:model="numero_ocupantes" min="0" placeholder="Ex: 4"
+                                            class="h-10 bg-white border border-gray-300 rounded-lg outline-none w-full focus:border-blue-500 focus:ring-blue-500 shadow-sm px-3">
+                                        @error('numero_ocupantes') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Estado de Conservação
+                                        </label>
+                                        <select wire:model="estado_conservacao"
+                                            class="h-10 bg-white border border-gray-300 rounded-lg outline-none w-full focus:border-blue-500 focus:ring-blue-500 shadow-sm px-3">
+                                            <option value="">Selecione...</option>
+                                            <option value="bom">Bom</option>
+                                            <option value="regular">Regular</option>
+                                            <option value="ruim">Ruim</option>
+                                        </select>
+                                        @error('estado_conservacao') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <div class="col-span-1 md:col-span-12 pt-4 border-t border-gray-200 mt-1">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Plano de Manutenção PMOC
+                                        </label>
+                                        <select wire:model="plano_id"
+                                            class="h-10 bg-white border border-gray-300 rounded-lg outline-none w-full focus:border-blue-500 focus:ring-blue-500 shadow-sm px-3">
+                                            <option value="">Selecione...</option>
+
+                                            @foreach($planos as $plano)
+                                                <option value="{{ $plano->id }}">{{ $plano->plan }}</option>
+                                            @endforeach
+
+                                        </select>
+                                        @error('plano_id') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            O plano selecionado definirá as rotinas de manutenção obrigatórias para este equipamento.
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Ambiente Específico</label>
                             <input type="text" wire:model="ambiente" placeholder="Ex: Sala de Reunião, Quarto Principal"

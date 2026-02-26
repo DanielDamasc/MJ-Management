@@ -24,12 +24,21 @@ class ClientFactory extends Factory
         $tipo = Arr::random(['residencial', 'comercial']);
         $isComercial = $tipo === 'comercial';
 
+        if ($isComercial) {
+            $empresa = fake()->company();
+            $temPmoc = fake()->boolean();
+        }
+
         return [
-            'cliente' => $isComercial ? fake()->company() : fake()->name(),
+            'cliente' => $isComercial ? $empresa : fake()->name(),
             'contato' => fake()->firstName(),
             'telefone' => $this->gerarTelefoneCelular(),
             'email' => fake()->unique()->safeEmail(),
             'tipo' => $tipo,
+            
+            'pmoc' => $temPmoc,
+            'razao_social' => $temPmoc ? $empresa : null,
+            'cnpj' => $temPmoc ? fake()->numerify('##############') : null,
 
             // 70% de chance de ser null e 30% de ter uma data.
             'ultima_notificacao' => fake()->optional(0.3)->dateTimeBetween('-1 year', 'now'),

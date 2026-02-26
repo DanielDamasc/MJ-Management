@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\Client;
+use App\Models\PmocTask;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Blade;
@@ -13,11 +13,11 @@ use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-final class ClientTable extends PowerGridComponent
+final class TaskTable extends PowerGridComponent
 {
-    public string $tableName = 'clientTable';
+    public string $tableName = 'taskTable';
 
-    protected $listeners = ['client-refresh' => '$refresh'];
+    protected $listeners = ['task-refresh' => '$refresh'];
 
     public function setUp(): array
     {
@@ -34,7 +34,7 @@ final class ClientTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Client::query();
+        return PmocTask::query();
     }
 
     public function relationSearch(): array
@@ -45,16 +45,7 @@ final class ClientTable extends PowerGridComponent
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id')
-            ->add('cliente')
-            ->add('contato')
-            ->add('telefone')
-            ->add('email')
-            ->add('tipo')
-            ->add('pmoc')
-            ->add('razao_social')
-            ->add('cnpj')
-            ->add('ultima_notificacao');
+            ->add('task');
     }
 
     public function columns(): array
@@ -64,21 +55,9 @@ final class ClientTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Cliente', 'cliente')
+            Column::make('Nome da Tarefa', 'task')
                 ->sortable()
                 ->searchable(),
-
-            Column::make(title: 'Pessoa de Contato', field: 'contato')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Telefone', 'telefone')
-                ->sortable()
-                ->searchable(),
-
-            // Column::make('Email', 'email')
-            //     ->sortable()
-            //     ->searchable(),
 
             Column::action('Action')
         ];
@@ -96,23 +75,18 @@ final class ClientTable extends PowerGridComponent
         $this->js('alert('.$rowId.')');
     }
 
-    public function actions(Client $row): array
+    public function actions(PmocTask $row): array
     {
         return [
-            Button::add('details')
-                ->slot(Blade::render('<x-heroicon-m-square-3-stack-3d class="w-5 h-5" />'))
-                ->class('text-auxiliar-400 hover:text-auxiliar-600 p-1 mr-2 transition-colors')
-                ->dispatchTo('clients-manager', 'open-details', ['id' => $row->id]),
-
             Button::add('edit')
                 ->slot(Blade::render('<x-heroicon-o-pencil-square class="w-5 h-5" />'))
                 ->class('text-secondary-600 hover:text-secondary-800 p-1 mr-2 transition-colors')
-                ->dispatchTo('clients-manager', 'open-edit', ['id' => $row->id]),
+                ->dispatchTo('pmoc-manager', 'open-task-edit', ['id' => $row->id]),
 
             Button::add('delete')
                 ->slot(Blade::render('<x-heroicon-o-trash class="w-5 h-5" />'))
                 ->class('text-red-600 hover:text-red-800 p-1 transition-colors')
-                ->dispatchTo('clients-manager', 'confirm-delete', ['id' => $row->id]),
+                ->dispatchTo('pmoc-manager', 'confirm-task-delete', ['id' => $row->id]),
         ];
     }
 

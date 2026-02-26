@@ -2,15 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Enums\EstadoConservacao;
 use App\Models\AirConditioning;
 use App\Models\Client;
-use App\Models\User;
+use App\Models\PmocPlan;
 use App\Services\AirConditioningService;
-use Carbon\Carbon;
 use Exception;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -34,6 +33,13 @@ class AirConditionersManager extends Component
     public $tipo = '';
     public $tipo_gas = '';
     public $codigo_ac = '';
+
+    // Atributos PMOC.
+    public $showPmoc = false;
+    public $plano_id = null;
+    public $area_climatizada = null;
+    public $numero_ocupantes = null;
+    public $estado_conservacao = '';
 
     // Atributos de Endereço.
     public $cep = '';
@@ -72,6 +78,26 @@ class AirConditionersManager extends Component
             'complemento' => 'nullable|string|max:150',
             'cidade' => 'required|string|max:100',
             'uf' => 'required|string|size:2',
+
+            // pmoc
+            'plano_id' => [
+                'nullable',
+                'exists:pmoc_plans,id'
+            ],
+            'area_climatizada' => [
+                'nullable',
+                'numeric',
+                'min:0',
+            ],
+            'numero_ocupantes' => [
+                'nullable',
+                'integer',
+                'min:0',
+            ],
+            'estado_conservacao' => [
+                'nullable',
+                new Enum(EstadoConservacao::class),
+            ]
         ];
     }
 
@@ -135,7 +161,28 @@ class AirConditionersManager extends Component
         // 3. Busca o cliente e carrega a relation.
         $cliente = Client::with('address')->find($value);
 
-        // 4. Se o cliente tem endereço, preenche os dados.
+        // Prevenção de erros.
+        if (!$cliente) {
+            $this->clearAddress();
+            return;
+        }
+
+        // 4. Exibe ou não os campos do PMOC.
+        if ($cliente->pmoc) {
+            $this->showPmoc = true;
+        } else {
+            $this->showPmoc = false;
+
+            // Limpa os campos para não enviar dados errados.
+            $this->reset([
+                'plano_id',
+                'area_climatizada',
+                'numero_ocupantes',
+                'estado_conservacao',
+            ]);
+        }
+
+        // 5. Se o cliente tem endereço, preenche os dados.
         if ($cliente && $cliente->address) {
             $this->cep = $cliente->address->cep;
             $this->rua = $cliente->address->rua;
@@ -152,6 +199,7 @@ class AirConditionersManager extends Component
     public function closeModal()
     {
         $this->showCreate = $this->showDelete = $this->showEdit = false;
+        $this->showPmoc = false;
         $this->resetValidation();
     }
 
@@ -172,7 +220,11 @@ class AirConditionersManager extends Component
             'bairro',
             'complemento',
             'cidade',
-            'uf'
+            'uf',
+            'plano_id',
+            'area_climatizada',
+            'numero_ocupantes',
+            'estado_conservacao',
         ]);
         $this->resetValidation();
         $this->showCreate = true;
@@ -193,7 +245,12 @@ class AirConditionersManager extends Component
                 'potencia' => $this->potencia,
                 'tipo' => $this->tipo,
                 'tipo_gas' => $this->tipo_gas,
-                'prox_higienizacao' => $this->prox_higienizacao ? $this->prox_higienizacao : null
+                'prox_higienizacao' => $this->prox_higienizacao ? $this->prox_higienizacao : null,
+
+                'plano_id' => $this->plano_id ?: null,
+                'area_climatizada' => $this->area_climatizada === '' ? null : $this->area_climatizada,
+                'numero_ocupantes' => $this->numero_ocupantes === '' ? null : $this->numero_ocupantes,
+                'estado_conservacao' => $this->estado_conservacao === '' ? null : $this->estado_conservacao,
             ],
         [
                 'cep' => $this->cep,
@@ -240,6 +297,18 @@ class AirConditionersManager extends Component
             $this->complemento = $ac->address->complemento ?? '';
             $this->cidade = $ac->address->cidade;
             $this->uf = $ac->address->uf;
+
+            // Verifica se tem pmoc.
+            if ($ac->client->pmoc) {
+                // Mostra os campos do pmoc.
+                $this->showPmoc = true;
+
+                // Preenche os atributos com os dados.
+                $this->plano_id = $ac->plano_id ?? null;
+                $this->area_climatizada = $ac->area_climatizada ?? null;
+                $this->numero_ocupantes = $ac->numero_ocupantes ?? null;
+                $this->estado_conservacao = $ac->estado_conservacao ?? "";
+            }
         }
     }
 
@@ -260,7 +329,12 @@ class AirConditionersManager extends Component
                     'potencia' => $this->potencia,
                     'tipo' => $this->tipo,
                     'tipo_gas' => $this->tipo_gas,
-                    'prox_higienizacao' => $this->prox_higienizacao ? $this->prox_higienizacao : null
+                    'prox_higienizacao' => $this->prox_higienizacao ? $this->prox_higienizacao : null,
+
+                    'plano_id' => $this->plano_id ?: null,
+                    'area_climatizada' => $this->area_climatizada === '' ? null : $this->area_climatizada,
+                    'numero_ocupantes' => $this->numero_ocupantes === '' ? null : $this->numero_ocupantes,
+                    'estado_conservacao' => $this->estado_conservacao === '' ? null : $this->estado_conservacao,
                 ],
             [
                     'cep' => $this->cep,
@@ -314,10 +388,15 @@ class AirConditionersManager extends Component
     #[Layout('layouts.app')]
     public function render()
     {
-        $clientes = Client::orderBy('cliente')->get();
+        $clientes = Client::orderBy('cliente')
+            ->get();
+
+        $planos = PmocPlan::orderBy('plan')
+            ->get();
 
         return view('livewire.air-conditioners-manager', [
             'clientes' => $clientes,
+            'planos' => $planos
         ]);
     }
 }

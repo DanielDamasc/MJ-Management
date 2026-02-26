@@ -9,6 +9,7 @@ use App\Livewire\ForgotPassword;
 use App\Livewire\Inicio;
 use App\Livewire\Login;
 use App\Livewire\LogsManager;
+use App\Livewire\PmocManager;
 use App\Livewire\ResetPassword;
 use App\Livewire\ServicesManager;
 use App\Models\User;
@@ -49,6 +50,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/colaboradores', EmployeeManager::class)->name('colaboradores');
         Route::get('/logs', LogsManager::class)->name('logs');
         Route::get('/ordem-servico/{id}/pdf', [OrderServiceController::class, 'gerarPDF'])->name('os.pdf');
+        Route::get('/pmoc', PmocManager::class)->name('pmoc');
     });
 
     // ----- ROTAS DO ADMIN OU ASSISTENTE -----
