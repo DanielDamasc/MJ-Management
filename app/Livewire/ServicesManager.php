@@ -120,7 +120,15 @@ class ServicesManager extends Component
         // 1. Limpa os detalhes sempre que o tipo mudar, evita enviar campos errados acidentalmente.
         $this->detalhes = [];
 
-        // 2. Quando o tipo é higienização, os checkboxes vem todos marcados.
+        // 2. Atualiza a label de acordo com o valor do enum.
+        if (!empty($value)) {
+            $enum = ServiceTypes::tryFrom($value);
+            $this->tipo_label = $enum ? $enum->label() : '';
+        } else {
+            $this->tipo_label = '';
+        }
+
+        // 3. Quando o tipo é higienização, os checkboxes vem todos marcados.
         if ($value === ServiceTypes::HIGIENIZACAO->value) {
 
             $tarefas = PmocTask::all();
@@ -152,7 +160,6 @@ class ServicesManager extends Component
             $this->acs_disponiveis = AirConditioning::where('cliente_id', $service->cliente_id)->get();
             $this->cliente_label = $service->client->cliente ?? 'Cliente não encontrado';
             $this->status_label = $service->status->label();
-            $this->tipo_label = $service->tipo->label();
 
             $this->cliente_id = $service->cliente_id;
             $this->executor_id = $service->executor_id;
