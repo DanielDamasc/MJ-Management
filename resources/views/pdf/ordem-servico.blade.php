@@ -96,7 +96,7 @@
     <table class="info-table">
         <tr>
             <th>Tipo do Serviço:</th>
-            <td colspan="3">{{ $os->tipo_label }}</td>
+            <td colspan="3">{{ $os->tipo->label() }}</td>
         </tr>
         <tr>
             <th>Data de Execução:</th>

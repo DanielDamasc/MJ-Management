@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Enums\ServiceStatus;
+use App\Enums\ServiceTypes;
 use App\Models\AirConditioning;
 use App\Models\OrderService;
 use DB;
@@ -152,7 +153,7 @@ class EmployeeServicesManager extends Component
                 $service->airConditioners()->sync($pivotData);
 
                 // Regra de negócio para instalação, deleta os equipamentos em caso de conclusão parcial.
-                if ($service->tipo == 'instalacao') {
+                if ($service->tipo == ServiceTypes::INSTALACAO->value) {
 
                     foreach ($idsRejeitados as $idRejeitado) {
                         $ac = AirConditioning::find($idRejeitado);

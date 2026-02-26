@@ -171,23 +171,36 @@
                                     <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 animate-fade-in-down">
                                         <h5 class="text-sm font-bold text-blue-800 mb-3 flex items-center">
                                             <x-heroicon-o-clipboard-document-list class="w-4 h-4 mr-2"/>
-                                            Checklist: {{ $tipo }}
+                                            Checklist: {{ $tipo_label }}
                                         </h5>
 
-                                        @if($tipo === 'higienizacao')
-                                            <div class="flex items-center">
-                                                <input
-                                                    id="chk-cond"
-                                                    type="checkbox"
-                                                    @checked(data_get($detalhes, 'limpou_condensadora'))
-                                                    disabled
-                                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                                                >
-                                                <label for="chk-cond" class="ml-2 text-sm font-medium text-gray-900 cursor-pointer select-none">
-                                                    Limpeza da Condensadora
-                                                </label>
+                                        {{-- Para os serviços de higienização, coloca como options as tarefas de manutenção. --}}
+                                        @if($tipo === \App\Enums\ServiceTypes::HIGIENIZACAO->value)
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                                                {{-- Assumindo que você está enviando a variável $tarefas do Livewire --}}
+                                                @forelse($tarefas as $tarefa)
+                                                    <div class="flex items-start">
+                                                        <div class="flex items-center h-5">
+                                                            <input id="view-chk-task-{{ $tarefa->id }}"
+                                                                type="checkbox"
+                                                                disabled
+                                                                @checked(data_get($detalhes, 'tarefas.' . $tarefa->id))
+                                                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded cursor-not-allowed opacity-75">
+                                                        </div>
+                                                        <div class="ml-2 text-sm">
+                                                            <label for="view-chk-task-{{ $tarefa->id }}" class="font-medium text-gray-800 cursor-pointer select-none">
+                                                                {{ $tarefa->task }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                @empty
+                                                    <div class="col-span-full text-sm text-gray-500 italic">
+                                                        Nenhuma tarefa de manutenção cadastrada no sistema.
+                                                    </div>
+                                                @endforelse
                                             </div>
                                         @endif
+
                                     </div>
                                 </div>
                             @endif
@@ -365,11 +378,9 @@
                                 @else
                                     <select wire:model.live="tipo" class="h-10 bg-gray-50 border border-gray-300 rounded-lg outline-none w-full focus:border-blue-500 focus:ring-blue-500 shadow-sm px-3">
                                         <option value="">Selecione...</option>
-                                        <option value="higienizacao">Higienização</option>
-                                        <option value="instalacao">Instalação</option>
-                                        <option value="manutencao">Manutenção</option>
-                                        <option value="carga_gas">Carga de Gás</option>
-                                        <option value="correcao_vazamento">Correção de Vazamento</option>
+                                        @foreach ($tiposServico as $_)
+                                            <option value="{{ $_->value }}">{{ $_->label() }}</option>
+                                        @endforeach
                                     </select>
                                     @error('tipo') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                 @endif
@@ -419,17 +430,35 @@
                                     <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 animate-fade-in-down">
                                         <h5 class="text-sm font-bold text-blue-800 mb-3 flex items-center">
                                             <x-heroicon-o-clipboard-document-list class="w-4 h-4 mr-2"/>
-                                            Checklist: {{ $tipo }}
+                                            Checklist: {{ $tipo_label }}
                                         </h5>
 
-                                        @if($tipo === 'higienizacao')
-                                            <div class="flex items-center">
-                                                <input id="chk-cond" type="checkbox" wire:model="detalhes.limpou_condensadora" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
-                                                <label for="chk-cond" class="ml-2 text-sm font-medium text-gray-900 cursor-pointer select-none">
-                                                    Limpeza da Condensadora
-                                                </label>
+                                        {{-- Para os serviços de higienização, coloca como options as tarefas de manutenção. --}}
+                                        @if($tipo === \App\Enums\ServiceTypes::HIGIENIZACAO->value)
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                                                {{-- Assumindo que você está enviando a variável $tarefas do Livewire --}}
+                                                @forelse($tarefas as $tarefa)
+                                                    <div class="flex items-start">
+                                                        <div class="flex items-center h-5">
+                                                            <input id="chk-task-{{ $tarefa->id }}"
+                                                                type="checkbox"
+                                                                wire:model="detalhes.tarefas.{{ $tarefa->id }}"
+                                                                class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer transition-all">
+                                                        </div>
+                                                        <div class="ml-2 text-sm">
+                                                            <label for="chk-task-{{ $tarefa->id }}" class="font-medium text-gray-800 cursor-pointer select-none">
+                                                                {{ $tarefa->task }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                @empty
+                                                    <div class="col-span-full text-sm text-gray-500 italic">
+                                                        Nenhuma tarefa de manutenção cadastrada no sistema.
+                                                    </div>
+                                                @endforelse
                                             </div>
                                         @endif
+
                                     </div>
                                 </div>
                             @endif
