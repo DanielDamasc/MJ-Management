@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\AirConditioning;
 use App\Models\PmocPlan;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -41,6 +43,9 @@ class PlanService {
 
             // Faz o sync das tarefas.
             $plano->tasks()->sync($tarefasSync);
+
+            // Regra de negócio caso o plano seja padrão.
+            $this->handlePlanoPadrao($plano);
 
             return $plano;
 
@@ -81,6 +86,9 @@ class PlanService {
             // Faz o sync das novas tarefas.
             $plan->tasks()->sync($tarefasSync);
 
+            // Regra de negócio caso o plano seja padrão.
+            $this->handlePlanoPadrao($plan);
+
             return $plan;
         });
     }
@@ -106,5 +114,26 @@ class PlanService {
         });
 
         return $tasks->toArray();
+    }
+
+    // ==========================================
+    // MÉTODOS PRIVADOS
+    // ==========================================
+
+    private function handlePlanoPadrao(PmocPlan $plan): void
+    {
+        if ($plan->padrao == true) {
+            // Retira o "padrão" de todos os outros planos.
+            PmocPlan::where('id', '!=', $plan->id)->update(['padrao' => false]);
+
+            // Busca todos os equipamentos para aplicar o plano default.
+            AirConditioning::whereNull('plano_id')
+                ->whereHas('client', function (Builder $q) {
+                    $q->where('pmoc', '=', true);
+                })
+                ->update([
+                    'plano_id' => $plan->id
+                ]);
+        }
     }
 }

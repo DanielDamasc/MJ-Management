@@ -36,7 +36,7 @@
                             <div>
                                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Serviço</p>
                                 <h3 class="text-lg font-extrabold text-gray-800 capitalize leading-none">
-                                    {{ $service->tipo_label }}
+                                    {{ $service->tipo->label() }}
                                 </h3>
                             </div>
                         </div>

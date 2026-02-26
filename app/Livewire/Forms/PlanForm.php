@@ -16,6 +16,9 @@ class PlanForm extends Form
     #[Validate('max:500', message: 'A descrição deve ter no máximo 500 caracteres.')]
     public $descricao = '';
 
+    #[Validate('boolean')]
+    public $padrao = false;
+
     #[Validate('array')]
     #[Validate('min:1', message: 'Pelo menos 1 tarefa deve ser selecionada.')]
     public $tarefasSelecionadas = [];
@@ -25,6 +28,7 @@ class PlanForm extends Form
         // 1. Preenche para o edit.
         $this->plan = $plan->plan;
         $this->descricao = $plan->descricao;
+        $this->padrao = $plan->padrao;
 
         // 2. Para marcar as checkboxes no edit.
         $tarefasFormatadas = [];

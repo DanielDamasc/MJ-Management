@@ -3,9 +3,11 @@
 namespace App\Livewire;
 
 use App\Enums\ServiceStatus;
+use App\Enums\ServiceTypes;
 use App\Models\AirConditioning;
 use App\Models\Client;
 use App\Models\OrderService;
+use App\Models\PmocTask;
 use App\Models\User;
 use App\Services\ServiceService;
 use Carbon\Carbon;
@@ -42,7 +44,9 @@ class ServicesManager extends Component
     public $valor_total = 0;
     public $status = ServiceStatus::AGENDADO->value;
     public $observacoes_executor = '';
-    public array $detalhes = [];
+    public array $detalhes = [
+        'tarefas' => []
+    ];
 
     // Outros Atributos.
     public $showView = false;
@@ -69,15 +73,14 @@ class ServicesManager extends Component
 
             'horario' => 'nullable|date_format:H:i', // HH:MM
 
-            'tipo' => 'required|string',
+            'tipo' => [
+                'required', 'string',
+                new Enum(ServiceTypes::class)
+            ],
             'ac_precos' => 'required|array|min:1',
             'ac_precos.*' => 'required|numeric|min:0',
             'status' => ['required', new Enum(ServiceStatus::class)],
         ];
-
-        if ($this->tipo == 'higienizacao') {
-            $rules['detalhes.limpou_condensadora'] = 'boolean';
-        }
 
         if ($this->status == ServiceStatus::AGENDADO->value) {
             $rules['data_servico'] = 'required|date|after_or_equal:today';
@@ -112,8 +115,39 @@ class ServicesManager extends Component
         }
     }
 
+    public function updatedTipo($value)
+    {
+        // 1. Limpa os detalhes sempre que o tipo mudar, evita enviar campos errados acidentalmente.
+        $this->detalhes = [];
+
+        // 2. Atualiza a label de acordo com o valor do enum.
+        if (!empty($value)) {
+            $enum = ServiceTypes::tryFrom($value);
+            $this->tipo_label = $enum ? $enum->label() : '';
+        } else {
+            $this->tipo_label = '';
+        }
+
+        // 3. Quando o tipo é higienização, os checkboxes vem todos marcados.
+        if ($value === ServiceTypes::HIGIENIZACAO->value) {
+
+            $tarefas = PmocTask::all();
+
+            foreach ($tarefas as $tarefa) {
+                // Deixa todas as tarefas marcadas para facilitar a criação.
+                $this->detalhes['tarefas'][$tarefa->id] = true;
+            }
+        }
+    }
+
     public function closeModal()
     {
+        if ($this->serviceId) {
+            $this->reset([
+                'serviceId'
+            ]);
+        }
+
         $this->showView = $this->showCreate = $this->showDelete = $this->showEdit = $this->showConfirm = $this->showCancel = false;
         $this->resetValidation();
     }
@@ -126,11 +160,10 @@ class ServicesManager extends Component
             $this->acs_disponiveis = AirConditioning::where('cliente_id', $service->cliente_id)->get();
             $this->cliente_label = $service->client->cliente ?? 'Cliente não encontrado';
             $this->status_label = $service->status->label();
-            $this->tipo_label = $service->tipo;
 
             $this->cliente_id = $service->cliente_id;
             $this->executor_id = $service->executor_id;
-            $this->tipo = $service->tipo;
+            $this->tipo = $service->tipo->value;
             $this->data_servico = $service->data_servico;
             $this->horario = $service->horario ?? '';
             $this->status = $service->status->value;
@@ -241,15 +274,14 @@ class ServicesManager extends Component
                 'total' => null
             ]);
 
-            $this->closeModal();
             $this->dispatch('notify-success', 'Dados atualizados com sucesso!');
             $this->dispatch('service-refresh');
 
+            // Fecha o modal e limpa o serviceId.
+            $this->closeModal();
+
         } catch (Exception $e) {
             $this->dispatch('notify-error', $e->getMessage());
-
-        } finally {
-            $this->serviceId = null;
 
         }
     }
@@ -354,12 +386,20 @@ class ServicesManager extends Component
     {
         $clientes = Client::get();
         $executores = User::role('executor')->get();
+
+        // Carregando enums.
         $statusServico = ServiceStatus::cases();
+        $tiposServico = ServiceTypes::cases();
+
+        // Buscando as tarefas de manutenção para os campos dinâmicos.
+        $tarefas = PmocTask::get();
 
         return view('livewire.services-manager', [
             'clientes' => $clientes,
             'executores' => $executores,
-            'statusServico' => $statusServico
+            'statusServico' => $statusServico,
+            'tiposServico' => $tiposServico,
+            'tarefas' => $tarefas,
         ]);
     }
 }

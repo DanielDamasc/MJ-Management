@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ServiceStatus;
+use App\Enums\ServiceTypes;
 use Carbon\Carbon;
 use DB;
 use Exception;
@@ -37,6 +38,7 @@ class OrderService extends Model
     ];
 
     public $casts = [
+        'tipo' => ServiceTypes::class,
         'status' => ServiceStatus::class,
         'detalhes' => 'array',
     ];
@@ -58,11 +60,6 @@ class OrderService extends Model
             // Quando salva, se vier vazio vira null, senão salva no formato.
             set: fn ($value) => $value ? Carbon::parse($value)->format('H:i:s') : null,
         );
-    }
-
-    public function getTipoLabelAttribute()
-    {
-        return self::$tipoLabels[$this->tipo] ?? ucfirst($this->tipo);
     }
 
     public function getActivitylogOptions(): LogOptions
