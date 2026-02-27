@@ -2,11 +2,13 @@
 
 namespace App\Livewire;
 
+use App\Enums\PersonTypes;
 use App\Models\Client;
 use App\Services\ClientService;
 use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -30,8 +32,8 @@ class ClientsManager extends Component
 
     // Atributos do cliente PMOC.
     public $pmoc = false;
-    public $razao_social = null;
-    public $cnpj = null;
+    public $tipo_pessoa = ''; // F ou J
+    public $documento = ''; // CPF ou CNPJ
 
     // Atributos de Endereço.
     public $cep = '';
@@ -70,16 +72,37 @@ class ClientsManager extends Component
             ],
 
             'pmoc' => 'boolean',
-            'razao_social' => [
-                'nullable','string','max:255',
-                Rule::requiredIf(fn () => $this->pmoc == true)
+            'tipo_pessoa' => [
+                'nullable',
+                Rule::requiredIf(fn () => $this->pmoc == true),
+                new Enum(PersonTypes::class),
             ],
-            'cnpj' => [
-                'nullable','string',
-                Rule::requiredIf(fn () => $this->pmoc == true)
+            'documento' => [
+                'nullable',
+                Rule::requiredIf(fn () => $this->pmoc == true),
+                function ($attribute, $value, $fail) {
+                    // Remove tudo que não é número.
+                    $numeros = preg_replace('/[^0-9]/', '', $value);
+
+                    // Validação para cpf.
+                    if ($this->tipo_pessoa === PersonTypes::FISICA->value) {
+                        if (strlen($numeros) !== 11) {
+                            $fail('O CPF deve conter exatamente 11 números.');
+                        }
+                    }
+
+                    // Validação para cnpj.
+                    elseif ($this->tipo_pessoa === PersonTypes::JURIDICA->value) {
+                        if (strlen($numeros) !== 14) {
+                            $fail('O CNPJ deve conter exatamente 14 números.');
+                        }
+                    }
+                }
             ],
 
-            'cep' => 'nullable|string|max:9',
+            'cep' => [
+                'nullable','string','max:9'
+            ],
             'rua' => [
                 'nullable','string','max:255',
             ],
@@ -137,6 +160,15 @@ class ClientsManager extends Component
         }
     }
 
+    public function updatedTipoPessoa($value)
+    {
+        // 1. Limpa o que o usuário havia digitado no campo documento
+        $this->documento = '';
+
+        // 2. Limpa qualquer mensagem de erro vermelha antiga que tenha ficado na tela
+        $this->resetValidation('documento');
+    }
+
     public function clearAddress()
     {
         $this->reset([
@@ -184,8 +216,8 @@ class ClientsManager extends Component
             'email',
             'tipo',
             'pmoc',
-            'razao_social',
-            'cnpj',
+            'tipo_pessoa',
+            'documento',
             'clientId',
         ]);
         $this->clearAddress();
@@ -197,6 +229,10 @@ class ClientsManager extends Component
     {
         $this->validate();
 
+        // Caso o pmoc esteja desmarcado, envia null nos seus atributos.
+        $tipoPessoaFinal = $this->pmoc ? $this->tipo_pessoa : null;
+        $documentoFinal = $this->pmoc ? $this->documento : null;
+
         try {
             $this->clientService->create([
                 'cliente' => $this->cliente,
@@ -205,8 +241,8 @@ class ClientsManager extends Component
                 'email' => $this->email,
                 'tipo' => $this->tipo,
                 'pmoc' => $this->pmoc,
-                'razao_social' => $this->razao_social,
-                'cnpj' => $this->cnpj
+                'tipo_pessoa' => $tipoPessoaFinal,
+                'documento' => $documentoFinal
             ],
             [
                 'cep' => $this->cep,
@@ -244,12 +280,12 @@ class ClientsManager extends Component
             $this->pmoc = $client->pmoc;
             // Apenas se for pmoc possui razão social e cnpj.
             if ($this->pmoc == true) {
-                $this->razao_social = $client->razao_social;
-                $this->cnpj = $client->cnpj;
+                $this->tipo_pessoa = $client->tipo_pessoa->value;
+                $this->documento = $client->documento;
             } else {
                 $this->reset([
-                    'razao_social',
-                    'cnpj'
+                    'tipo_pessoa',
+                    'documento'
                 ]);
             }
 
@@ -278,6 +314,11 @@ class ClientsManager extends Component
         $client = Client::find($this->clientId);
 
         if ($client) {
+
+            // Caso o pmoc esteja desmarcado, envia null nos seus atributos.
+            $tipoPessoaFinal = $this->pmoc ? $this->tipo_pessoa : null;
+            $documentoFinal = $this->pmoc ? $this->documento : null;
+
             try {
                 $this->clientService->update($client, [
                     'cliente' => $this->cliente,
@@ -286,8 +327,8 @@ class ClientsManager extends Component
                     'email' => $this->email,
                     'tipo' => $this->tipo,
                     'pmoc' => $this->pmoc,
-                    'razao_social' => $this->razao_social,
-                    'cnpj' => $this->cnpj
+                    'tipo_pessoa' => $tipoPessoaFinal,
+                    'documento' => $documentoFinal,
                 ],
                 [
                     'cep' => $this->cep,
@@ -341,6 +382,10 @@ class ClientsManager extends Component
     #[Layout('layouts.app')]
     public function render()
     {
-        return view('livewire.clients-manager');
+        $tiposPessoa = PersonTypes::cases();
+
+        return view('livewire.clients-manager', [
+            'tiposPessoa' => $tiposPessoa
+        ]);
     }
 }

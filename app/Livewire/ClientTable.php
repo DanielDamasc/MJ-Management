@@ -52,8 +52,8 @@ final class ClientTable extends PowerGridComponent
             ->add('email')
             ->add('tipo')
             ->add('pmoc')
-            ->add('razao_social')
-            ->add('cnpj')
+            ->add('tipo_pessoa')
+            ->add('documento')
             ->add('ultima_notificacao');
     }
 

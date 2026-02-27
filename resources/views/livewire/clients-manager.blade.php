@@ -105,26 +105,34 @@
                                 </div>
 
                                 @if($pmoc)
-                                    <div class="col-span-1 md:col-span-2 lg:col-span-8 transition-all">
-                                        <label class="block mb-1 text-sm font-medium text-primary-700">Razão Social
+                                    <div class="col-span-1 md:col-span-2 lg:col-span-5 transition-all">
+                                        <label class="block mb-1 text-sm font-medium text-primary-700">Tipo de Pessoa
                                             <span class="text-red-500">*</span>
                                         </label>
-                                        <input type="text" wire:model="razao_social"
-                                            class="bg-primary-50 border border-primary-200 text-primary-900 text-sm rounded-lg focus:ring-secondary-500 focus:border-secondary-500 block w-full p-2.5"
-                                            placeholder="Ex: MJ Engenharia LTDA">
-                                        @error('razao_social') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                        <select wire:model.live="tipo_pessoa" class="bg-primary-50 border border-primary-200 text-primary-900 text-sm rounded-lg focus:ring-secondary-500 focus:border-secondary-500 block w-full p-2.5">
+                                            <option value="">Selecione...</option>
+                                            @foreach($tiposPessoa as $_)
+                                                <option value="{{ $_->value }}">{{ $_->label() }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('tipo_pessoa') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                     </div>
 
-                                    <div class="col-span-1 md:col-span-2 lg:col-span-3 transition-all">
-                                        <label class="block mb-1 text-sm font-medium text-primary-700">CNPJ
+                                    <div class="col-span-1 md:col-span-2 lg:col-span-6 transition-all" x-data="{ tipo: @entangle('tipo_pessoa') }">
+                                        <label class="block mb-1 text-sm font-medium text-primary-700">
+                                            {{-- Muda o título dinamicamente --}}
+                                            <span x-text="tipo === 'F' ? 'CPF' : (tipo === 'J' ? 'CNPJ' : 'Documento')">Documento</span>
                                             <span class="text-red-500">*</span>
                                         </label>
-                                        <input type="text" wire:model="cnpj"
-                                            class="bg-primary-50 border border-primary-200 text-primary-900 text-sm rounded-lg focus:ring-secondary-500 focus:border-secondary-500 block w-full p-2.5"
-                                            placeholder="00.000.000/0000-00"
-                                            maxlength="14"
-                                            oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5')">
-                                        @error('cnpj') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+
+                                        <input type="text" wire:model="documento"
+                                            class="bg-primary-50 border border-primary-200 text-primary-900 text-sm rounded-lg focus:ring-secondary-500 focus:border-secondary-500 block w-full p-2.5 disabled:opacity-50 disabled:bg-gray-200 disabled:cursor-not-allowed"
+
+                                            x-mask:dynamic="tipo === 'F' ? '999.999.999-99' : '99.999.999/9999-99'"
+                                            x-bind:placeholder="tipo === 'F' ? '000.000.000-00' : '00.000.000/0000-00'"
+                                            x-bind:disabled="!tipo"
+                                        >
+                                        @error('documento') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                     </div>
                                 @endif
 
