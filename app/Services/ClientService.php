@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\AirConditioning;
 use App\Models\Client;
+use App\Models\PmocPlan;
 use DB;
 use Exception;
 use Http;
@@ -13,19 +15,16 @@ class ClientService
     public function create(array $data, array $address)
     {
         return DB::transaction(function() use ($data, $address) {
+
             // 1. Limpeza do Telefone
             $data['telefone'] = $this->limparInput($data['telefone']);
 
             // 2. Validação do Telefone
             $this->validateTelefone($data['telefone']);
 
-            // 3. Remove os dados do PMOC caso ele seja desmarcado.
-            $data = $this->uncheckPmoc($data);
-
-            // 4. Valida o cnpj.
-            if ($data['cnpj']) {
-                $data['cnpj'] = $this->limparInput($data['cnpj']);
-                $this->validateCnpj($data['cnpj']);
+            // 3. Limpar o input do documento
+            if (!empty($data['documento'])) {
+                $data['documento'] = $this->limparInput($data['documento']);
             }
 
             // 4. Cria o cliente com os dados
@@ -43,22 +42,22 @@ class ClientService
     public function update(Client $client, array $data, array $address)
     {
         return DB::transaction(function() use ($client, $data, $address) {
+
+            // 1. Verifica se está virando cliente pmoc nesta edição.
+            $virouPmoc = (!$client->pmoc && !empty($data['pmoc']));
+
             // 1. Limpeza do Telefone
             $data['telefone'] = $this->limparInput($data['telefone']);
 
             // 2. Validação do Telefone
             $this->validateTelefone($data['telefone']);
 
-            // 3. Remove os dados do PMOC caso ele seja desmarcado.
-            $data = $this->uncheckPmoc($data);
-
-            // 4. Valida o cnpj.
-            if ($data['cnpj']) {
-                $data['cnpj'] = $this->limparInput($data['cnpj']);
-                $this->validateCnpj($data['cnpj'], $client->id);
+            // 3. Limpar o input do documento
+            if (!empty($data['documento'])) {
+                $data['documento'] = $this->limparInput($data['documento']);
             }
 
-            // 5. Se o cep não for vazio, cria ou atualiza o endereço para o cliente.
+            // 4. Cria ou atualiza o endereço para o cliente.
             if (!empty($address['cep'])) {
                 $client->address()->updateOrCreate(
                     // Busca no banco se existe.
@@ -74,7 +73,22 @@ class ClientService
                 $client->address()->delete();
             }
 
-            return $client->update($data);
+            // 5. Atualiza os dados.
+            $client->update($data);
+
+            // 6. Regra de negócio do PMOC padrão.
+            if ($virouPmoc) {
+                $planoPadrao = PmocPlan::where('padrao', true)->first();
+
+                if ($planoPadrao) {
+                    AirConditioning::where('cliente_id', $client->id)
+                        ->whereNull('plano_id')
+                        ->update(['plano_id' => $planoPadrao->id]);
+                }
+            }
+
+            // Retorna o objeto cliente.
+            return $client->refresh();
         });
     }
 
@@ -103,36 +117,6 @@ class ClientService
         if (Str::of($phone)->length() !== 11) {
             throw new Exception("O telefone deve conter 11 dígitos.");
         }
-
-        // 2. Validação de unicidade
-        // $query = Client::where('telefone', $phone);
-
-        // if ($ignoreId) {
-        //     $query->where('id', '!=', $ignoreId);
-        // }
-
-        // if ($query->exists()) {
-        //     throw new Exception("O telefone já foi cadastrado.");
-        // }
-    }
-
-    private function validateCnpj($cnpj, $ignoreId = null) {
-
-        // 1. Validação de tamanho.
-        if (Str::of($cnpj)->length() !== 14) {
-            throw new Exception("O CNPJ deve conter 14 dígitos.");
-        }
-
-        // 2. Validação de unicidade
-        $query = Client::where('cnpj', $cnpj);
-
-        if ($ignoreId) {
-            $query->where('id', '!=', $ignoreId);
-        }
-
-        if ($query->exists()) {
-            throw new Exception("CNPJ já cadastrado.");
-        }
     }
 
     public function loadCep($value)
@@ -155,14 +139,5 @@ class ClientService
 
         // 4. Retorna a resposta
         return $response;
-    }
-
-    private function uncheckPmoc(array $data): array
-    {
-        if ($data['pmoc'] == false) {
-            $data['razao_social'] = $data['cnpj'] = null;
-        }
-
-        return $data;
     }
 }

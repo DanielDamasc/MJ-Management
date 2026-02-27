@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\PersonTypes;
 use App\Models\Client;
 use Arr;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,21 +25,31 @@ class ClientFactory extends Factory
         $tipo = Arr::random(['residencial', 'comercial']);
         $isComercial = $tipo === 'comercial';
 
-        if ($isComercial) {
-            $empresa = fake()->company();
-            $temPmoc = fake()->boolean();
+        $nomeCliente = $isComercial ? fake()->company() : fake()->name();
+
+        $temPmoc = $isComercial ? fake()->boolean(80) : fake()->boolean(20);
+
+        // Iniciam como null.
+        $tipoPessoa = null;
+        $documento = null;
+
+        if ($temPmoc) {
+            $tipoPessoa = $isComercial ? PersonTypes::JURIDICA->value : PersonTypes::FISICA->value;
+
+            // Parâmetro false garante que venha sem mask.
+            $documento = $isComercial ? fake('pt_BR')->cnpj(false) : fake('pt_BR')->cpf(false);
         }
 
         return [
-            'cliente' => $isComercial ? $empresa : fake()->name(),
+            'cliente' => $nomeCliente,
             'contato' => fake()->firstName(),
             'telefone' => $this->gerarTelefoneCelular(),
             'email' => fake()->unique()->safeEmail(),
             'tipo' => $tipo,
-            
+
             'pmoc' => $temPmoc,
-            'razao_social' => $temPmoc ? $empresa : null,
-            'cnpj' => $temPmoc ? fake()->numerify('##############') : null,
+            'tipo_pessoa' => $tipoPessoa,
+            'documento' => $documento,
 
             // 70% de chance de ser null e 30% de ter uma data.
             'ultima_notificacao' => fake()->optional(0.3)->dateTimeBetween('-1 year', 'now'),

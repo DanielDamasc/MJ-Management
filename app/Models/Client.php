@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PersonTypes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,14 +25,15 @@ class Client extends Model
         'qtd_notificacoes',
 
         'pmoc',
-        'razao_social',
-        'cnpj'
+        'tipo_pessoa',
+        'documento'
     ];
 
     // Converte automaticamente o dado que vem do banco para o datetime do Carbon.
     protected $casts = [
         'ultima_notificacao' => 'datetime',
-        'pmoc' => 'boolean'
+        'pmoc' => 'boolean',
+        'tipo_pessoa' => PersonTypes::class,
     ];
 
     // Accessor para exibir telefone formatado.
@@ -56,21 +58,6 @@ class Client extends Model
                 return $value;
             }
         );
-    }
-
-    protected function cnpj(): Attribute
-    {
-        return Attribute::make(
-            set: fn ($value) => empty($value) ?
-            null : preg_replace('/[^0-9]/', '', $value),
-
-            get: fn ($value) => empty($value) ?
-            null : $this->formatCnpj($value),
-        );
-    }
-
-    private function formatCnpj($value) {
-        return preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", "$1.$2.$3/$4-$5", $value);
     }
 
     public function getActivitylogOptions(): LogOptions
