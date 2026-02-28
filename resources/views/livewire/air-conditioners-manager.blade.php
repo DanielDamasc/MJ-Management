@@ -35,7 +35,7 @@
 
                     <div class="flex-shrink-0 flex items-center justify-between p-5 border-b border-primary-50 dark:border-gray-700 rounded-t">
                         <h3 class="text-xl font-bold text-primary-900 dark:text-white">
-                            {{ $showCreate ? 'Cadastrar Ar-Condicionado' : 'Editar Informações do Ar-Condicionado' }}
+                            {{ $showCreate ? 'Cadastrar Ar-Condicionado' : 'Editar Ar-Condicionado' }}
                         </h3>
 
                         <button wire:click="closeModal" type="button" class="text-primary-400 dark:text-gray-400 bg-transparent hover:bg-primary-50 dark:hover:bg-gray-700 hover:text-primary-900 dark:hover:text-white rounded-lg text-sm p-1.5 ml-auto inline-flex items-center transition-colors">
