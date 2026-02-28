@@ -7,9 +7,26 @@
         <title>{{ $title ?? config('app.name', 'MJ Management') }}</title>
         <link rel="icon" type="image/png" href="{{ asset('favicon.png?v=1') }}">
 
+        {{-- SCRIPT DO DARK MODE PARA LIVEWIRE SPA --}}
+        <script>
+            function applyTheme() {
+                if (localStorage.getItem('darkMode') === 'true' || (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }
+
+            // Aplica no primeiro carregamento (Evita a tela piscar branco)
+            applyTheme();
+
+            // Reaplica silenciosamente toda vez que o wire:navigate trocar de página
+            document.addEventListener('livewire:navigated', applyTheme);
+        </script>
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-gray-50 font-sans antialiased h-screen overflow-hidden flex" x-data="{open: false}">
+    <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans antialiased h-screen overflow-hidden flex" x-data="{open: false}">
 
         {{-- Fundo escuro de quando a sidebar está aberta no mobile. --}}
         <div
@@ -126,6 +143,24 @@
                             {{ auth()->user()->name }}
                         </span>
                     </div>
+
+                    <button
+                        x-data="{ isDark: document.documentElement.classList.contains('dark') }"
+                        @click="
+                            document.documentElement.classList.toggle('dark');
+                            isDark = document.documentElement.classList.contains('dark');
+                            localStorage.setItem('darkMode', isDark);
+                        "
+                        x-on:livewire:navigated.window="isDark = document.documentElement.classList.contains('dark')"
+                        class="ml-auto p-2 text-primary-400 hover:text-white hover:bg-primary-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-600"
+                        title="Alternar Tema Escuro/Claro"
+                    >
+                        {{-- Lua (Aparece no modo Claro) --}}
+                        <x-heroicon-o-moon x-show="!isDark" class="w-5 h-5" />
+
+                        {{-- Sol (Aparece no modo Escuro) --}}
+                        <x-heroicon-o-sun x-show="isDark" class="w-5 h-5" style="display: none;" />
+                    </button>
                 </div>
 
                 <a href="{{ route('logout') }}"
@@ -145,7 +180,7 @@
                         @click="open = true">
                         <x-ionicon-menu-outline class="w-8 h-8"/>
                     </button>
-                    <span class="block text-xl font-bold">MJ Engenharia</span>
+                    <span class="block text-xl font-bold">MJ Management</span>
                 </div>
                 <div class="mr-4">
                     <a href="{{ route('logout') }}"

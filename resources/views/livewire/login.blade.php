@@ -6,7 +6,7 @@
                 Bem-vindo
             </h2>
             <p class="mt-2 text-sm text-primary-600">
-                Acesse o painel da <span class="font-semibold text-primary-800">MJ Engenharia</span>
+                Acesse o painel da <span class="font-semibold text-primary-800">MJ Management</span>
             </p>
         </div>
 
@@ -87,6 +87,6 @@
     </div>
 
     <div class="fixed bottom-4 text-center w-full text-xs text-primary-400">
-        &copy; {{ date('Y') }} MJ Engenharia. Todos os direitos reservados.
+        &copy; {{ date('Y') }} MJ Management. Todos os direitos reservados.
     </div>
 </div>
