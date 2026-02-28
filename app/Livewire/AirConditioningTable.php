@@ -66,7 +66,7 @@ final class AirConditioningTable extends PowerGridComponent
             ->add('prox_higienizacao_formatted', function (AirConditioning $model) {
                 // 1. Sem data de próxima higienização
                 if (!$model->prox_higienizacao) {
-                    return '--/--/----';
+                    return "<span class='text-gray-800 dark:text-gray-300'>--/--/----</span>";
                 }
 
                 $data = Carbon::parse($model->prox_higienizacao);
@@ -75,13 +75,13 @@ final class AirConditioningTable extends PowerGridComponent
                 // 2. Se passou a data da próxima higienização
                 if ($data->isPast()) {
                     // Badge Vermelho
-                    return "<div class='inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-red-100 text-red-800'>
+                    return "<div class='inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-transparent dark:border-red-800/50'>
                                 {$data_formatada}
                             </div>";
                 }
 
                 // 3. Caso normal, data futura
-                return "<div class='text-gray-800'>{$data_formatada}</div>";
+                return "<div class='text-gray-800 dark:text-gray-200'>{$data_formatada}</div>";
             })
             ->add('prox_higienizacao')
             ->add('area_climatizada')
