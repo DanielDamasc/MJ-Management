@@ -261,7 +261,7 @@
                 <div class="relative flex flex-col max-h-[90vh] bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-primary-100 dark:border-gray-700 overflow-hidden">
 
                     <div class="p-6 text-center">
-                        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 p-3 text-red-600">
+                        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 dark:bg-rose-950/50 p-3 text-rose-600 dark:text-rose-400">
                             <x-ionicon-warning-sharp class="w-8 h-8" />
                         </div>
 
@@ -279,7 +279,7 @@
                                 Cancelar
                             </button>
 
-                            <button wire:click="delete" type="button" class="text-white bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-gray-900 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all shadow-md">
+                            <button wire:click="delete" type="button" class="text-white bg-rose-600 dark:bg-rose-700 hover:bg-rose-700 dark:hover:bg-rose-600 focus:ring-4 focus:outline-none focus:ring-rose-200 dark:focus:ring-rose-900 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all shadow-md hover:shadow-lg">
                                 Sim, excluir
                             </button>
 
