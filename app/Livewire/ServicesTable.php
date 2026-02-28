@@ -154,32 +154,32 @@ final class ServicesTable extends PowerGridComponent
         return [
             Button::add('show')
                 ->slot(Blade::render('<x-heroicon-o-eye class="w-5 h-5" />'))
-                ->class('text-primary-600 hover:text-primary-800 p-1 transition-colors')
+                ->class('p-1 transition-colors text-primary-400 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300')
                 ->dispatchTo('services-manager', 'show', ['id' => $row->id]),
 
             Button::add('gerar-pdf')
                 ->slot(Blade::render('<x-heroicon-o-document-arrow-down class="w-5 h-5" />'))
-                ->class('text-gray-600 hover:text-gray-800 p-1 transition-colors')
+                ->class('p-1 transition-colors text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300')
                 ->route('os.pdf', ['id' => $row->id], '_blank'),
 
             Button::add('done')
                 ->slot(Blade::render('<x-heroicon-o-check-circle class="w-5 h-5" />'))
-                ->class('text-green-600 hover:text-green-800 p-1 transition-colors')
+                ->class('p-1 transition-colors text-green-400 hover:text-green-600 dark:text-green-400 dark:hover:text-green-300')
                 ->dispatchTo('services-manager', 'confirm-service-done', ['id' => $row->id]),
 
             Button::add('cancel')
                 ->slot(Blade::render('<x-heroicon-o-x-circle class="w-5 h-5" />'))
-                ->class('text-red-600 hover:text-red-800 p-1 transition-colors')
+                ->class('p-1 transition-colors text-red-400 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300')
                 ->dispatchTo('services-manager', 'confirm-service-cancel', ['id' => $row->id]),
 
             Button::add('edit')
                 ->slot(Blade::render('<x-heroicon-o-pencil-square class="w-5 h-5" />'))
-                ->class('text-secondary-600 hover:text-secondary-800 p-1 transition-colors')
+                ->class('p-1 transition-colors text-secondary-400 hover:text-secondary-600 dark:text-secondary-400 dark:hover:text-secondary-300')
                 ->dispatchTo('services-manager', 'open-edit', ['id' => $row->id]),
 
             Button::add('delete')
                 ->slot(Blade::render('<x-heroicon-o-trash class="w-5 h-5" />'))
-                ->class('text-red-600 hover:text-red-800 p-1 transition-colors')
+                ->class('p-1 transition-colors text-red-400 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300')
                 ->dispatchTo('services-manager', 'confirm-delete', ['id' => $row->id]),
         ];
     }

@@ -125,7 +125,7 @@ final class LogsTable extends PowerGridComponent
         return [
             Button::add('show')
                 ->slot(Blade::render('<x-heroicon-s-eye class="w-5 h-5" />'))
-                ->class('text-primary-600 hover:text-primary-800 p-1 mr-2 transition-colors')
+                ->class('p-1 transition-colors text-primary-400 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300')
                 ->dispatchTo('logs-manager', 'show', ['id' => $row->id]),
         ];
     }

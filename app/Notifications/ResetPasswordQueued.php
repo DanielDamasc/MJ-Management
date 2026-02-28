@@ -42,7 +42,7 @@ class ResetPasswordQueued extends Notification implements ShouldQueue
         ], false));
 
         return (new MailMessage)
-            ->subject('Redefinição de senha - MJ Engenharia')
+            ->subject('Redefinição de senha - MJ Management')
             ->greeting('Olá!')
             ->line('Você recebeu este e-mail porque foi solicitada uma redefinição de senha para sua conta.')
             ->action('Redefinir Minha Senha', $url)
