@@ -163,7 +163,10 @@ class ServicesManager extends Component
 
             $this->cliente_id = $service->cliente_id;
             $this->executor_id = $service->executor_id;
+
             $this->tipo = $service->tipo->value;
+            $this->tipo_label = $service->tipo->label();
+
             $this->data_servico = $service->data_servico;
             $this->horario = $service->horario ?? '';
             $this->status = $service->status->value;
@@ -209,6 +212,11 @@ class ServicesManager extends Component
             'ac_precos',
             'status',
             'detalhes',
+            
+            'cliente_label',
+            'status_label',
+            'tipo_label',
+            'executor_label',
         ]);
         $this->resetValidation();
         $this->showCreate = true;
