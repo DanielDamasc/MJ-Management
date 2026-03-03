@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\ServiceStatus;
+use App\Enums\ServiceTypes;
 use App\Jobs\SendWhatsappRemindersJob;
 use App\Models\Client;
 use App\Models\OrderService;
@@ -40,23 +41,26 @@ class SendWhatsappReminders extends Command
 
         $this->info("Buscando clientes com data de próxima higienização entre {$start} e {$end}");
 
-        $clientes = Client::where(function ($q) use ($segundoAviso) {
-            // 1. Primeira notificação.
-            $q->where('qtd_notificacoes', 0)
-            ->whereNull('ultima_notificacao')
+        $clientes = Client::where(function ($q) use ($start, $end, $segundoAviso) {
+            // 1. Primeira notificação, confere também a data da próxima higienização.
+            $q->where(function ($sub1) use ($start, $end) {
+                $sub1->where('qtd_notificacoes', 0)
+                    ->whereNull('ultima_notificacao')
+                    ->whereHas('airConditioners', function ($acQuery) use ($start, $end) {
+                        $acQuery->whereBetween('prox_higienizacao', [$start, $end]);
+                    });
+            })
 
-            // 2. Segunda notificação, depois de 2 meses do primeiro aviso.
-            ->orWhere(function ($sub) use ($segundoAviso) {
-                $sub->where('qtd_notificacoes', 1)
+            // 2. Segunda notificação, funciona independente da data da próxima higienização.
+            ->orWhere(function ($sub2) use ($segundoAviso) {
+                $sub2->where('qtd_notificacoes', 1)
                     ->where('ultima_notificacao', '<', $segundoAviso); // Já se passaram dois meses
             });
         })
-        ->whereHas('airConditioners', function ($q) use ($start, $end) {
-            $q->whereBetween('prox_higienizacao', [$start, $end]);
-        })
-        ->whereDoesntHave('servicos', function ($q) {
-            $q->where('status', ServiceStatus::AGENDADO->value)
-            ->where('tipo', 'higienizacao');
+        // 3. Funciona bloqueando notificação quando já tem higienizações agendadas.
+        ->whereDoesntHave('servicos', function ($servicosQuery) {
+            $servicosQuery->where('status', ServiceStatus::AGENDADO->value)
+            ->where('tipo', ServiceTypes::HIGIENIZACAO->value);
         })
         ->get();
 

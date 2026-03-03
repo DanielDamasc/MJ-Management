@@ -12,6 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('clients', function (Blueprint $table) {
+
+            $table->dropUnique('clients_cnpj_unique'); // Para não falhar no sqlite.
+
             // Apaga o que era exclusivo de empresa.
             $table->dropColumn(['cnpj', 'razao_social']);
 
@@ -30,6 +33,8 @@ return new class extends Migration
             $table->dropColumn(['tipo_pessoa', 'documento']);
 
             $table->string('cnpj', 14)->unique()->nullable();
+            $table->unique('cnpj', 'clients_cnpj_unique');
+            
             $table->string('razao_social')->nullable();
         });
     }
