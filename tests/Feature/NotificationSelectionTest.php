@@ -34,10 +34,10 @@ class NotificationSelectionTest extends TestCase
                 'ultima_notificacao' => null
             ]);
 
-        // --- Cenário 2: DEVE RECEBER (segundo aviso) ---
+        // --- Cenário 2: DEVE RECEBER, (vencimento passou e segundo aviso) ---
         $client2 = Client::factory()
             ->has(AirConditioning::factory()->state([
-                'prox_higienizacao' => now()->addDays(3) // dentro da data
+                'prox_higienizacao' => now()->subMonths(3) // fora da data
             ]),
                 'airConditioners'
             )
@@ -57,7 +57,7 @@ class NotificationSelectionTest extends TestCase
                 'qtd_notificacoes' => 0
             ]);
 
-        // --- Cenário 4: NÃO DEVE RECEBER (vencimento passou) ---
+        // --- Cenário 4: NÃO DEVE RECEBER (vencimento passou e primeiro aviso) ---
         $client4 = Client::factory()
             ->has(AirConditioning::factory()->state([
                 'prox_higienizacao' => now()->subDay() // fora da data, passou
