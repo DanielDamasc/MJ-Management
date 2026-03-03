@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Enums\ServiceStatus;
 use App\Models\OrderService;
+use App\Models\User;
 use Blade;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -99,7 +100,7 @@ final class ServicesTable extends PowerGridComponent
         return [
             Column::make('Cliente', 'cliente'),
 
-            Column::make('Executor', 'name'),
+            Column::make('Executor', 'name', 'executor_id'),
 
             // Column::make('Tipo', 'tipo')
             //     ->sortable()
@@ -133,13 +134,18 @@ final class ServicesTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::select('status', 'status')
+            Filter::select('status_formatted', 'status')
                 ->dataSource(collect(ServiceStatus::cases())->map(fn($status) => [
                     'label' => $status->label(),
                     'value' => $status->value
                 ]))
                 ->optionLabel('label')
-                ->optionValue('value')
+                ->optionValue('value'),
+
+            Filter::select('name', 'executor_id')
+                    ->dataSource(User::role('executor')->get())
+                    ->optionLabel('name')
+                    ->optionValue('id'),
         ];
     }
 
