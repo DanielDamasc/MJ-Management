@@ -20,6 +20,10 @@ class PmocPlan extends Model
         'padrao',
     ];
 
+    protected $casts = [
+        'padrao' => 'boolean',
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
