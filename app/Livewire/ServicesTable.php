@@ -73,7 +73,12 @@ final class ServicesTable extends PowerGridComponent
                 return $model->user->name ?? '-';
             })
             ->add('tipo')
-            ->add('data_servico_formatted', fn (OrderService $model) => Carbon::parse($model->data_servico)->format('d/m/Y'))
+            ->add('data_servico_formatted', function (OrderService $model) {
+                if ($model->data_servico == null) {
+                    return "--/--/----";
+                }
+                return Carbon::parse($model->data_servico)->format('d/m/Y');
+            })
             ->add('horario')
             ->add('total')
             ->add('status_formatted', function (OrderService $model) {
