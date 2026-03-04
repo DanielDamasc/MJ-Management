@@ -64,9 +64,12 @@ class ServicesManager extends Component
 
     protected function rules()
     {
+        // Valor do enum para usar nas regras de validação.
+        $pendente = ServiceStatus::PENDENTE->value;
+
         $rules = [
             'cliente_id' => 'required|integer|exists:clients,id',
-            'executor_id' => 'required|integer|exists:users,id',
+            'executor_id' => "nullable|required_unless:status,{$pendente}|integer|exists:users,id",
 
             'ac_ids' => 'required|array|min:1',
             'ac_ids.*' => 'exists:air_conditioners,id',
@@ -82,14 +85,19 @@ class ServicesManager extends Component
             'status' => ['required', new Enum(ServiceStatus::class)],
         ];
 
+        // Validação para serviço agendado.
         if ($this->status == ServiceStatus::AGENDADO->value) {
             $rules['data_servico'] = 'required|date|after_or_equal:today';
         }
+
+        // Validação para serviço concluído ou cancelado.
         elseif (in_array($this->status, [ServiceStatus::CONCLUIDO->value, ServiceStatus::CANCELADO->value])) {
             $rules['data_servico'] = 'required|date|before_or_equal:today';
         }
+
+        // Se caiu aqui é pendente, portanto a data é nullable.
         else {
-            $rules['data_servico'] = 'required|date';
+            $rules['data_servico'] = 'nullable|date';
         }
 
         return $rules;
@@ -212,7 +220,7 @@ class ServicesManager extends Component
             'ac_precos',
             'status',
             'detalhes',
-            
+
             'cliente_label',
             'status_label',
             'tipo_label',
