@@ -44,7 +44,26 @@ final class ServicesTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return OrderService::query()->with(['client', 'user']);
+        // Pegando os valores do Enum para não "chumbar" strings no código
+        $agendado = ServiceStatus::AGENDADO->value;
+        $pendente = ServiceStatus::PENDENTE->value;
+        $concluido = ServiceStatus::CONCLUIDO->value;
+        $cancelado = ServiceStatus::CANCELADO->value;
+
+        $query = OrderService::query()
+            ->with(['client', 'user']);
+
+        $query
+            // 1º: Grupo Prioritário (Agendado e Pendente) no topo da tabela (Pilha 0). O resto vai para baixo (Pilha 1).
+            ->orderByRaw("CASE WHEN status IN (?, ?) THEN 0 ELSE 1 END ASC", [$agendado, $pendente])
+
+            // 2º: Dentro do Grupo Prioritário, ordena da data MAIS ANTIGA para a mais nova (ASC).
+            ->orderByRaw("CASE WHEN status IN (?, ?) THEN data_servico END ASC", [$agendado, $pendente])
+
+            // 3º: Dentro do Grupo Secundário (Concluído e Cancelado), ordena da data MAIS RECENTE para a mais antiga (DESC).
+            ->orderByRaw("CASE WHEN status IN (?, ?) THEN data_servico END DESC", [$concluido, $cancelado]);
+
+        return $query;
     }
 
     public function relationSearch(): array
@@ -73,7 +92,12 @@ final class ServicesTable extends PowerGridComponent
                 return $model->user->name ?? '-';
             })
             ->add('tipo')
-            ->add('data_servico_formatted', fn (OrderService $model) => Carbon::parse($model->data_servico)->format('d/m/Y'))
+            ->add('data_servico_formatted', function (OrderService $model) {
+                if ($model->data_servico == null) {
+                    return "--/--/----";
+                }
+                return Carbon::parse($model->data_servico)->format('d/m/Y');
+            })
             ->add('horario')
             ->add('total')
             ->add('status_formatted', function (OrderService $model) {
@@ -194,7 +218,11 @@ final class ServicesTable extends PowerGridComponent
     {
        return [
             Rule::button('show')
-               ->when(fn($row) => $row->status == ServiceStatus::AGENDADO)
+               ->when(fn($row) => in_array($row->status, [ServiceStatus::AGENDADO, ServiceStatus::PENDENTE]))
+               ->hide(),
+
+            Rule::button('gerar-pdf')
+               ->when(fn($row) => $row->status == ServiceStatus::PENDENTE)
                ->hide(),
 
            Rule::button('done')
@@ -206,7 +234,7 @@ final class ServicesTable extends PowerGridComponent
                ->hide(),
 
             Rule::button('edit')
-               ->when(fn($row) => $row->status != ServiceStatus::AGENDADO)
+               ->when(fn($row) => in_array($row->status, [ServiceStatus::CONCLUIDO, ServiceStatus::CANCELADO]))
                ->hide(),
 
             Rule::button('delete')

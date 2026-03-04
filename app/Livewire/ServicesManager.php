@@ -59,14 +59,18 @@ class ServicesManager extends Component
     // Atributos Auxiliares.
     public $cliente_label = '';
     public $status_label = '';
+    public $original_status = '';
     public $tipo_label = '';
     public $executor_label = '';
 
     protected function rules()
     {
+        // Valor do enum para usar nas regras de validação.
+        $pendente = ServiceStatus::PENDENTE->value;
+
         $rules = [
             'cliente_id' => 'required|integer|exists:clients,id',
-            'executor_id' => 'required|integer|exists:users,id',
+            'executor_id' => "nullable|required_unless:status,{$pendente}|integer|exists:users,id",
 
             'ac_ids' => 'required|array|min:1',
             'ac_ids.*' => 'exists:air_conditioners,id',
@@ -82,14 +86,19 @@ class ServicesManager extends Component
             'status' => ['required', new Enum(ServiceStatus::class)],
         ];
 
+        // Validação para serviço agendado.
         if ($this->status == ServiceStatus::AGENDADO->value) {
             $rules['data_servico'] = 'required|date|after_or_equal:today';
         }
+
+        // Validação para serviço concluído ou cancelado.
         elseif (in_array($this->status, [ServiceStatus::CONCLUIDO->value, ServiceStatus::CANCELADO->value])) {
             $rules['data_servico'] = 'required|date|before_or_equal:today';
         }
+
+        // Se caiu aqui é pendente, portanto a data é nullable.
         else {
-            $rules['data_servico'] = 'required|date';
+            $rules['data_servico'] = 'nullable|date';
         }
 
         return $rules;
@@ -170,6 +179,7 @@ class ServicesManager extends Component
             $this->data_servico = $service->data_servico;
             $this->horario = $service->horario ?? '';
             $this->status = $service->status->value;
+            $this->original_status = $service->status->value;
             $this->detalhes = $service->detalhes;
 
             $this->ac_ids = $service->airConditioners->pluck('id')->toArray();
@@ -212,7 +222,7 @@ class ServicesManager extends Component
             'ac_precos',
             'status',
             'detalhes',
-            
+
             'cliente_label',
             'status_label',
             'tipo_label',
@@ -232,9 +242,12 @@ class ServicesManager extends Component
                 $this->ac_precos,
                 [
                 'cliente_id' => $this->cliente_id,
-                'executor_id' => $this->executor_id,
+
+                // Quando vazios, devem ser null, para não quebrar o banco para OS de status pendente.
+                'executor_id' => $this->executor_id ?: null,
+                'data_servico' => $this->data_servico ?: null,
+
                 'tipo' => $this->tipo,
-                'data_servico' => $this->data_servico,
                 'horario' => $this->horario, // casta para null na model.
                 'status' => $this->status,
                 'detalhes' => $this->detalhes,
@@ -275,8 +288,10 @@ class ServicesManager extends Component
                 $this->ac_ids,
                 $this->ac_precos,
             [
-                'executor_id' => $this->executor_id,
-                'data_servico' => $this->data_servico,
+                // Quando vazios, devem ser null, para não quebrar o banco para OS de status pendente.
+                'executor_id' => $this->executor_id ?: null,
+                'data_servico' => $this->data_servico ?: null,
+
                 'horario' => $this->horario, // casta para null na model.
                 'detalhes' => $this->detalhes,
                 'total' => null

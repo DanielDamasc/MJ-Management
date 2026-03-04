@@ -38,7 +38,7 @@ class PmocPlan extends Model
             'task_id',
             'id',
             'id'
-        )->withPivot('periodicidade');
+        )->withPivot(['periodicidade', 'cliente_executa']);
     }
 
     public function airConditioners()

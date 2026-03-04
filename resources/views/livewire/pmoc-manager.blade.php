@@ -193,6 +193,7 @@
                                                     </th>
                                                     <th scope="col" class="px-6 py-3">Descrição da Tarefa</th>
                                                     <th scope="col" class="px-6 py-3">Periodicidade</th>
+                                                    <th scope="col" class="px-6 py-3 text-center">Cliente Executa?</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -223,6 +224,17 @@
                                                                     <option value="{{ $periodo->value }}">{{ $periodo->label() }}</option>
                                                                 @endforeach
                                                             </select>
+                                                        </td>
+
+                                                        <td class="px-6 py-4 text-center">
+                                                            <div class="flex items-center justify-center">
+                                                                <input id="cliente-executa-{{ $task->id }}" type="checkbox"
+                                                                    wire:model="planForm.tarefasSelecionadas.{{ $task->id }}.cliente_executa"
+                                                                    class="w-4 h-4 text-secondary-600 bg-primary-50 dark:bg-gray-800 border-primary-300 dark:border-gray-600 rounded focus:ring-secondary-500 focus:ring-2 dark:focus:ring-offset-gray-900 cursor-pointer">
+                                                                <label for="cliente-executa-{{ $task->id }}" class="ml-2 text-sm font-medium text-primary-900 dark:text-gray-300 cursor-pointer">
+                                                                    Sim
+                                                                </label>
+                                                            </div>
                                                         </td>
 
                                                     </tr>

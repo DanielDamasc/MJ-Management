@@ -38,6 +38,8 @@ class ClientFactory extends Factory
 
             // Parâmetro false garante que venha sem mask.
             $documento = $isComercial ? fake('pt_BR')->cnpj(false) : fake('pt_BR')->cpf(false);
+
+            $inicioPmoc = fake()->date('Y-m-d');
         }
 
         return [
@@ -50,6 +52,7 @@ class ClientFactory extends Factory
             'pmoc' => $temPmoc,
             'tipo_pessoa' => $tipoPessoa,
             'documento' => $documento,
+            'inicio_pmoc' => $inicioPmoc,
 
             // 70% de chance de ser null e 30% de ter uma data.
             'ultima_notificacao' => fake()->optional(0.3)->dateTimeBetween('-1 year', 'now'),
