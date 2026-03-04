@@ -197,6 +197,10 @@ final class ServicesTable extends PowerGridComponent
                ->when(fn($row) => $row->status == ServiceStatus::AGENDADO)
                ->hide(),
 
+            Rule::button('gerar-pdf')
+               ->when(fn($row) => $row->status == ServiceStatus::PENDENTE)
+               ->hide(),
+
            Rule::button('done')
                ->when(fn($row) => $row->status != ServiceStatus::AGENDADO)
                ->hide(),
@@ -206,7 +210,7 @@ final class ServicesTable extends PowerGridComponent
                ->hide(),
 
             Rule::button('edit')
-               ->when(fn($row) => $row->status != ServiceStatus::AGENDADO)
+               ->when(fn($row) => in_array($row->status, [ServiceStatus::CONCLUIDO, ServiceStatus::CANCELADO]))
                ->hide(),
 
             Rule::button('delete')

@@ -59,6 +59,7 @@ class ServicesManager extends Component
     // Atributos Auxiliares.
     public $cliente_label = '';
     public $status_label = '';
+    public $original_status = '';
     public $tipo_label = '';
     public $executor_label = '';
 
@@ -178,6 +179,7 @@ class ServicesManager extends Component
             $this->data_servico = $service->data_servico;
             $this->horario = $service->horario ?? '';
             $this->status = $service->status->value;
+            $this->original_status = $service->status->value;
             $this->detalhes = $service->detalhes;
 
             $this->ac_ids = $service->airConditioners->pluck('id')->toArray();
@@ -289,7 +291,7 @@ class ServicesManager extends Component
                 // Quando vazios, devem ser null, para não quebrar o banco para OS de status pendente.
                 'executor_id' => $this->executor_id ?: null,
                 'data_servico' => $this->data_servico ?: null,
-                
+
                 'horario' => $this->horario, // casta para null na model.
                 'detalhes' => $this->detalhes,
                 'total' => null

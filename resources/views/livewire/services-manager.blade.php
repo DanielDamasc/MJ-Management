@@ -422,19 +422,30 @@
                                         <label class="block mb-1 text-sm font-medium text-primary-700 dark:text-gray-300">Status Atual
                                             <span class="text-red-500">*</span>
                                         </label>
-                                        @if ($showEdit)
-                                            <div class="bg-gray-100 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 cursor-not-allowed select-none rounded-lg block w-full p-2.5 text-sm">
-                                                {{ $status_label }}
-                                            </div>
-                                            <small class="text-xs text-gray-500 dark:text-gray-300 mt-1">O status não pode ser alterado na edição.</small>
-                                        @else
+
+                                        {{-- Se for create pode ser alterado e feito com todas as opções --}}
+                                        @if ($showCreate)
                                             <select wire:model="status" class="bg-primary-50 dark:bg-gray-900 border border-primary-200 dark:border-gray-600 text-primary-900 dark:text-white text-sm rounded-lg focus:ring-secondary-500 focus:border-secondary-500 block w-full p-2.5">
                                                 @foreach($statusServico as $_)
                                                     <option value="{{ $_->value }}">{{ $_->label() }}</option>
                                                 @endforeach
                                             </select>
                                             @error('status') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                        {{-- Se o status for pendente, pode ser alterado para agendado no edit --}}
+                                        @elseif ($original_status == \App\Enums\ServiceStatus::PENDENTE->value)
+                                            <select wire:model="status" class="bg-primary-50 dark:bg-gray-900 border border-primary-200 dark:border-gray-600 text-primary-900 dark:text-white text-sm rounded-lg focus:ring-secondary-500 focus:border-secondary-500 block w-full p-2.5">
+                                                    <option value="{{ \App\Enums\ServiceStatus::PENDENTE->value }}">{{ \App\Enums\ServiceStatus::PENDENTE->label() }}</option>
+                                                    <option value="{{ \App\Enums\ServiceStatus::AGENDADO->value }}">{{ \App\Enums\ServiceStatus::AGENDADO->label() }}</option>
+                                            </select>
+                                            @error('status') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                        {{-- Caso contrário, não pode ser alterado --}}
+                                        @else
+                                            <div class="bg-gray-100 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 cursor-not-allowed select-none rounded-lg block w-full p-2.5 text-sm">
+                                                {{ $status_label }}
+                                            </div>
+                                            <small class="text-xs text-gray-500 dark:text-gray-300 mt-1">O status não pode ser alterado na edição.</small>
                                         @endif
+
                                     </div>
 
                                     {{-- CAMPOS DINÂMICOS (JSON) --}}

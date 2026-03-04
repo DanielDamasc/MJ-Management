@@ -37,26 +37,22 @@ class ServiceService
 
     public function update(OrderService $orderService, array $acIds, array $acPrecos, array $data)
     {
-        // Edição só pode ser feita em serviços agendados.
-        if ($orderService->status === ServiceStatus::AGENDADO) {
-
-            DB::transaction(function () use ($orderService, $acIds, $acPrecos, $data) {
-                // 1. Prepara os dados da pivô e calcula o preço total do serviço.
-                $calculo = $this->calculaPivo($acIds, $acPrecos);
-                $data['total'] = $calculo['total'];
-
-                // 2. Atualiza a OS.
-                $orderService->update($data);
-
-                // 3. Atualiza os dados da tabela pivô.
-                $orderService->airConditioners()->sync($calculo['pivot']);
-            });
-
-
-        } else {
-            throw new Exception('Apenas serviços agendados podem ser editados.');
-
+        // Validação de status do serviço para edição.
+        if (!in_array($orderService->status, [ServiceStatus::AGENDADO, ServiceStatus::PENDENTE])) {
+            throw new Exception('Apenas serviços pendentes ou agendados podem ser editados');
         }
+
+        DB::transaction(function () use ($orderService, $acIds, $acPrecos, $data) {
+            // 1. Prepara os dados da pivô e calcula o preço total do serviço.
+            $calculo = $this->calculaPivo($acIds, $acPrecos);
+            $data['total'] = $calculo['total'];
+
+            // 2. Atualiza a OS.
+            $orderService->update($data);
+
+            // 3. Atualiza os dados da tabela pivô.
+            $orderService->airConditioners()->sync($calculo['pivot']);
+        });
     }
 
     public function delete(OrderService $orderService)
