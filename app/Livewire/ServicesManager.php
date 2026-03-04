@@ -240,9 +240,12 @@ class ServicesManager extends Component
                 $this->ac_precos,
                 [
                 'cliente_id' => $this->cliente_id,
-                'executor_id' => $this->executor_id,
+
+                // Quando vazios, devem ser null, para não quebrar o banco para OS de status pendente.
+                'executor_id' => $this->executor_id ?: null,
+                'data_servico' => $this->data_servico ?: null,
+
                 'tipo' => $this->tipo,
-                'data_servico' => $this->data_servico,
                 'horario' => $this->horario, // casta para null na model.
                 'status' => $this->status,
                 'detalhes' => $this->detalhes,
@@ -283,8 +286,10 @@ class ServicesManager extends Component
                 $this->ac_ids,
                 $this->ac_precos,
             [
-                'executor_id' => $this->executor_id,
-                'data_servico' => $this->data_servico,
+                // Quando vazios, devem ser null, para não quebrar o banco para OS de status pendente.
+                'executor_id' => $this->executor_id ?: null,
+                'data_servico' => $this->data_servico ?: null,
+                
                 'horario' => $this->horario, // casta para null na model.
                 'detalhes' => $this->detalhes,
                 'total' => null
