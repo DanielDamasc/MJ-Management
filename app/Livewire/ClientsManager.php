@@ -34,6 +34,7 @@ class ClientsManager extends Component
     public $pmoc = false;
     public $tipo_pessoa = ''; // F ou J
     public $documento = ''; // CPF ou CNPJ
+    public $inicio_pmoc = '';
 
     // Atributos de Endereço.
     public $cep = '';
@@ -98,6 +99,11 @@ class ClientsManager extends Component
                         }
                     }
                 }
+            ],
+            'inicio_pmoc' => [
+                'nullable',
+                Rule::requiredIf(fn () => $this->pmoc == true),
+                'date',
             ],
 
             'cep' => [
@@ -218,6 +224,7 @@ class ClientsManager extends Component
             'pmoc',
             'tipo_pessoa',
             'documento',
+            'inicio_pmoc',
             'clientId',
         ]);
         $this->clearAddress();
@@ -232,6 +239,7 @@ class ClientsManager extends Component
         // Caso o pmoc esteja desmarcado, envia null nos seus atributos.
         $tipoPessoaFinal = $this->pmoc ? $this->tipo_pessoa : null;
         $documentoFinal = $this->pmoc ? $this->documento : null;
+        $inicioPmocFinal = $this->pmoc ? $this->inicio_pmoc : null;
 
         try {
             $this->clientService->create([
@@ -242,7 +250,8 @@ class ClientsManager extends Component
                 'tipo' => $this->tipo,
                 'pmoc' => $this->pmoc,
                 'tipo_pessoa' => $tipoPessoaFinal,
-                'documento' => $documentoFinal
+                'documento' => $documentoFinal,
+                'inicio_pmoc' => $inicioPmocFinal,
             ],
             [
                 'cep' => $this->cep,
@@ -282,10 +291,12 @@ class ClientsManager extends Component
             if ($this->pmoc == true) {
                 $this->tipo_pessoa = $client->tipo_pessoa->value;
                 $this->documento = $client->documento;
+                $this->inicio_pmoc = $client->inicio_pmoc;
             } else {
                 $this->reset([
                     'tipo_pessoa',
-                    'documento'
+                    'documento',
+                    'inicio_pmoc',
                 ]);
             }
 
@@ -318,6 +329,7 @@ class ClientsManager extends Component
             // Caso o pmoc esteja desmarcado, envia null nos seus atributos.
             $tipoPessoaFinal = $this->pmoc ? $this->tipo_pessoa : null;
             $documentoFinal = $this->pmoc ? $this->documento : null;
+            $inicioPmocFinal = $this->pmoc ? $this->inicio_pmoc : null;
 
             try {
                 $this->clientService->update($client, [
@@ -329,6 +341,7 @@ class ClientsManager extends Component
                     'pmoc' => $this->pmoc,
                     'tipo_pessoa' => $tipoPessoaFinal,
                     'documento' => $documentoFinal,
+                    'inicio_pmoc' => $inicioPmocFinal,
                 ],
                 [
                     'cep' => $this->cep,

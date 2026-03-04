@@ -110,7 +110,7 @@
                                 </div>
 
                                 @if($pmoc)
-                                    <div class="col-span-1 md:col-span-2 lg:col-span-5 transition-all">
+                                    <div class="col-span-1 md:col-span-2 lg:col-span-4 transition-all">
                                         <label class="block mb-1 text-sm font-medium text-primary-700 dark:text-gray-300">Tipo de Pessoa
                                             <span class="text-red-500">*</span>
                                         </label>
@@ -123,7 +123,7 @@
                                         @error('tipo_pessoa') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                     </div>
 
-                                    <div class="col-span-1 md:col-span-2 lg:col-span-6 transition-all" x-data="{ tipo: @entangle('tipo_pessoa') }">
+                                    <div class="col-span-1 md:col-span-1 lg:col-span-4 transition-all" x-data="{ tipo: @entangle('tipo_pessoa') }">
                                         <label class="block mb-1 text-sm font-medium text-primary-700 dark:text-gray-300">
                                             {{-- Muda o título dinamicamente --}}
                                             <span x-text="tipo === 'F' ? 'CPF' : (tipo === 'J' ? 'CNPJ' : 'Documento')">Documento</span>
@@ -138,6 +138,14 @@
                                             x-bind:disabled="!tipo"
                                         >
                                         @error('documento') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <div class="col-span-1 md:col-span-1 lg:col-span-3">
+                                        <label class="block mb-1 text-sm font-medium text-primary-700 dark:text-gray-300">Data de Início do Pmoc
+                                            <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="date" wire:model="inicio_pmoc" class="bg-primary-50 dark:bg-gray-900 border border-primary-200 dark:border-gray-600 text-primary-900 dark:text-white text-sm rounded-lg focus:ring-secondary-500 focus:border-secondary-500 block w-full p-2.5">
+                                        @error('inicio_pmoc') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                     </div>
                                 @endif
 

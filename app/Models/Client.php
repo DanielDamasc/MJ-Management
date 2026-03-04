@@ -26,7 +26,8 @@ class Client extends Model
 
         'pmoc',
         'tipo_pessoa',
-        'documento'
+        'documento',
+        'inicio_pmoc',
     ];
 
     // Converte automaticamente o dado que vem do banco para o datetime do Carbon.
