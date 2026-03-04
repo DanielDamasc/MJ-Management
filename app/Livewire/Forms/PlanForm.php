@@ -36,7 +36,8 @@ class PlanForm extends Form
         foreach ($plan->tasks as $task) {
             $tarefasFormatadas[$task->id] = [
                 'selecionada' => true,
-                'periodicidade' => $task->pivot->periodicidade
+                'periodicidade' => $task->pivot->periodicidade,
+                'cliente_executa' => (bool) $task->pivot->cliente_executa,
             ];
         }
 

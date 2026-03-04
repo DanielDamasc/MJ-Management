@@ -32,6 +32,6 @@ class PmocTask extends Model
             'plan_id',
             'id',
             'id'
-        )->withPivot('periodicidade');
+        )->withPivot(['periodicidade', 'cliente_executa']);
     }
 }

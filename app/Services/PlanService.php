@@ -26,7 +26,8 @@ class PlanService {
                 // Tudo certo.
                 if (!empty($opcoes['selecionada']) && !empty($opcoes['periodicidade'])) {
                     $tarefasSync[$tarefaId] = [
-                        'periodicidade' => $opcoes['periodicidade']
+                        'periodicidade' => $opcoes['periodicidade'],
+                        'cliente_executa' => filter_var($opcoes['cliente_executa'] ?? false, FILTER_VALIDATE_BOOLEAN),
                     ];
                 }
 
@@ -68,7 +69,8 @@ class PlanService {
                 // Tudo certo.
                 if (!empty($opcoes['selecionada']) && !empty($opcoes['periodicidade'])) {
                     $tarefasSync[$tarefaId] = [
-                        'periodicidade' => $opcoes['periodicidade']
+                        'periodicidade' => $opcoes['periodicidade'],
+                        'cliente_executa' => filter_var($opcoes['cliente_executa'] ?? false, FILTER_VALIDATE_BOOLEAN),
                     ];
                 }
 
