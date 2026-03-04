@@ -102,7 +102,6 @@ class ClientsManager extends Component
             ],
             'inicio_pmoc' => [
                 'nullable',
-                Rule::requiredIf(fn () => $this->pmoc == true),
                 'date',
             ],
 
