@@ -87,7 +87,7 @@ class OrderService extends Model
             ]);
 
             // Atualiza a data da próxima higienização se for higienização ou instalação.
-            if (in_array($this->tipo, ['higienizacao', 'instalacao'])) {
+            if (in_array($this->tipo, [ServiceTypes::HIGIENIZACAO, ServiceTypes::INSTALACAO])) {
                 $proxData = $this->proximaHigienizacao($this->data_servico);
 
                 $this->airConditioners()->update([
