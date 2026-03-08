@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
 use Log;
 use Str;
 
@@ -36,80 +37,85 @@ class SendWhatsappRemindersJob implements ShouldQueue
      */
     public function handle(): void
     {
-        // Dados da API.
-        $token = config('services.whatsapp.token');
-        $phoneId = config('services.whatsapp.phone_id');
-        $version = 'v22.0';
+        // Puxando configurações da evolution.
+        $apiUrl = config('services.evolution.url');
+        $apiKey = config('services.evolution.key');
+        $instance = config('services.evolution.instance');
 
-        // Dados do template.
+        // Dados do cliente.
         $nome = Str::of($this->client->contato)->explode(' ')->first();
         $to = $this->normalizarTelefone($this->client->telefone);
         $mesesCalculados = $this->calcularUltimaHigienizacao();
 
-        // Templates diferentes: para quando tem ou não a última higienização.
+        $saudacoes = [
+            "Olá *{$nome}*, tudo bem?",
+            "Oi *{$nome}*, como vai?",
+            "Olá *{$nome}*, tudo certo?",
+            "Oi *{$nome}*, espero que esteja tudo bem!",
+        ];
+        $saudacao = Arr::random($saudacoes);
+
+        // Configura dois modelos distintos caso já tenha feito uma higienização anteriormente.
         if (is_null($mesesCalculados)) {
-            $payload = [
-                'messaging_product' => 'whatsapp',
-                'to' => $to,
-                'type' => 'template',
-                'template' => [
-                    'name' => 'aviso_higienizacao', // Nome do modelo
-                    'language' => [
-                        'code' => 'pt_BR' // Língua da mensagem
-                    ],
-                    'components' => [
-                        [
-                            'type' => 'body',
-                            'parameters' => [
-                                [
-                                    'type' => 'text',
-                                    'text' => $nome,
-                                ],
-                            ]
-                        ]
-                    ],
-                ]
+
+            $corpos = [
+                "Passando para lembrar que está na hora de agendar a higienização dos seus ar-condicionados.",
+                "Consta em nosso sistema que é o momento ideal para fazer a limpeza preventiva dos seus aparelhos.",
+                "Verificamos que já é o momento de realizar a higienização periódica dos seus ar-condicionados."
+            ];
+            $ctas = [
+                "Vamos marcar?",
+                "Podemos agendar um horário?",
+                "Qual seria o melhor dia para você?",
+                "Gostaria de deixar agendado?"
             ];
 
+            $corpo = Arr::random($corpos);
+            $cta = Arr::random($ctas);
+
+            $textoFinal = "{$saudacao}\n\n{$corpo} {$cta}";
             $logMeses = 'N/A';
+            $templateName = 'aviso_higienizacao_simples';
         } else {
             $textoMeses = (string) $mesesCalculados . ' meses';
 
-            $payload = [
-                'messaging_product' => 'whatsapp',
-                'to' => $to,
-                'type' => 'template',
-                'template' => [
-                    'name' => 'lembrete_proxima_higienizacao', // Nome do modelo
-                    'language' => [
-                        'code' => 'pt_BR' // Língua da mensagem
-                    ],
-                    'components' => [
-                        [
-                            'type' => 'body',
-                            'parameters' => [
-                                [
-                                    'type' => 'text',
-                                    'text' => $nome,
-                                ],
-                                [
-                                    'type' => 'text',
-                                    'text' => $textoMeses,
-                                ]
-                            ]
-                        ]
-                    ],
-                ]
+            $aberturasMeses = [
+                "Já está completando *{$textoMeses}* desde a sua última higienização.",
+                "Faz *{$textoMeses}* que realizamos a última limpeza nos seus aparelhos.",
+                "Notei aqui no sistema que a sua última manutenção foi há *{$textoMeses}*."
+            ];
+            $motivos = [
+                "Para garantir a saúde do ambiente e o funcionamento do aparelho,",
+                "Para manter a qualidade do ar e evitar que ele gaste muita energia,",
+                "Para garantir que o aparelho continue gelando bem e evitar fungos,"
+            ];
+            $fechamentos = [
+                "que tal agendarmos uma nova higienização?",
+                "vamos marcar a próxima limpeza?",
+                "podemos deixar a próxima visita agendada?"
             ];
 
+            $abertura = Arr::random($aberturasMeses);
+            $motivo = Arr::random($motivos);
+            $fechamento = Arr::random($fechamentos);
+
+            $textoFinal = "{$saudacao}\n\n{$abertura} {$motivo} {$fechamento}";
             $logMeses = $textoMeses;
+            $templateName = 'aviso_higienizacao_com_meses';
         }
+
+        $payload = [
+            'number' => $to,
+            'text' => $textoFinal,
+            'delay' => 1500,
+            'presence' => 'composing' // Mostra digitando...
+        ];
 
         Log::info("JOB [Cliente {$this->client->id}]: Enviando Payload...", $payload);
 
-        // Chamada a API.
-        $response = Http::withToken($token)
-            ->post("https://graph.facebook.com/{$version}/{$phoneId}/messages", $payload);
+        $response = Http::withHeaders([
+            'apiKey' => $apiKey
+        ])->post("{$apiUrl}/message/sendText/{$instance}", $payload);
 
         Log::info("
             JOB [Cliente {$this->client->id}]:
@@ -142,7 +148,7 @@ class SendWhatsappRemindersJob implements ShouldQueue
                 'properties'   => [
                     'telefone_destino' => $to,
                     'meses_calculados' => $logMeses,
-                    'template_usado' => $payload['template']['name'],
+                    'template_usado' => $templateName,
                     'status_api' => 'sucesso'
                 ],
             ]);
@@ -155,11 +161,15 @@ class SendWhatsappRemindersJob implements ShouldQueue
 
     private function normalizarTelefone($tel)
     {
-        if (strlen($tel) <= 11) {
-            return '55' . $tel;
+        // Arranca letras, espaços, traços e parênteses. Deixa SÓ os números.
+        $telLimpo = preg_replace('/[^0-9]/', '', $tel);
+
+        // Se tiver 11 dígitos ou menos, coloca o 55 do Brasil na frente
+        if (strlen($telLimpo) <= 11) {
+            return '55' . $telLimpo;
         }
 
-        return $tel;
+        return $telLimpo;
     }
 
     private function calcularUltimaHigienizacao()

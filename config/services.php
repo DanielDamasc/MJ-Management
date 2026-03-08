@@ -35,9 +35,15 @@ return [
         ],
     ],
 
-    'whatsapp' => [
-        'token' => env('WHATSAPP_TOKEN'),
-        'phone_id' => env('WHATSAPP_PHONE_ID'),
+    // 'whatsapp' => [
+    //     'token' => env('WHATSAPP_TOKEN'),
+    //     'phone_id' => env('WHATSAPP_PHONE_ID'),
+    // ],
+
+    'evolution' => [
+        'url'      => env('EVOLUTION_API_URL'),
+        'key'      => env('EVOLUTION_API_KEY'),
+        'instance' => env('EVOLUTION_API_INSTANCE'),
     ],
 
 ];
