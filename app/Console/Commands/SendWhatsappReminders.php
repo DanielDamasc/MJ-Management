@@ -62,14 +62,17 @@ class SendWhatsappReminders extends Command
             $servicosQuery->where('status', ServiceStatus::AGENDADO->value)
             ->where('tipo', ServiceTypes::HIGIENIZACAO->value);
         })
+        ->whereNot('pmoc', true)
         ->get();
 
         // --- ENVIANDO OS CLIENTES PARA O JOB ---
 
+        $this->info("Total de clientes que serão notificados: " . $clientes->count());
         Log::info("Total de clientes que serão notificados: " . $clientes->count());
 
         foreach ($clientes as $cliente) {
-            SendWhatsappRemindersJob::dispatch($cliente);
+            SendWhatsappRemindersJob::dispatch($cliente)
+                ->delay(now()->addSeconds(rand(15,45)));
         }
     }
 }
