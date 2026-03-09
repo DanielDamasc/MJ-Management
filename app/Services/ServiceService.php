@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ServiceStatus;
+use App\Enums\ServiceTypes;
 use App\Models\OrderService;
 use DB;
 use Exception;
@@ -23,7 +24,7 @@ class ServiceService
             $os->airConditioners()->attach($calculo['pivot']);
 
             // 4. Atualiza a próxima higienização se for concluído.
-            if (in_array($os->tipo, ['higienizacao', 'instalacao']) && $os->status == ServiceStatus::CONCLUIDO) {
+            if (in_array($os->tipo, [ServiceTypes::HIGIENIZACAO, ServiceTypes::INSTALACAO]) && $os->status == ServiceStatus::CONCLUIDO) {
                 $proxData = $os->proximaHigienizacao($os->data_servico);
 
                 $os->airConditioners()->update([

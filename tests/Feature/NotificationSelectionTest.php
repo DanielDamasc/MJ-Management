@@ -30,6 +30,7 @@ class NotificationSelectionTest extends TestCase
                 'airConditioners'
             )
             ->create([
+                'pmoc' => false,
                 'qtd_notificacoes' => 0,
                 'ultima_notificacao' => null
             ]);
@@ -42,6 +43,7 @@ class NotificationSelectionTest extends TestCase
                 'airConditioners'
             )
             ->create([
+                'pmoc' => false,
                 'qtd_notificacoes' => 1,
                 'ultima_notificacao' => now()->subMonths(3) // anti-spam, pode
             ]);
@@ -54,6 +56,7 @@ class NotificationSelectionTest extends TestCase
                 'airConditioners'
             )
             ->create([
+                'pmoc' => false,
                 'qtd_notificacoes' => 0
             ]);
 
@@ -65,7 +68,8 @@ class NotificationSelectionTest extends TestCase
                 'airConditioners'
             )
             ->create([
-                'qtd_notificacoes' => 0
+                'pmoc' => false,
+                'qtd_notificacoes' => 0,
             ]);
 
         // --- Cenário 5: NÃO DEVE RECEBER (já tem agendamento) ---
@@ -75,7 +79,10 @@ class NotificationSelectionTest extends TestCase
             ]),
                 'airConditioners'
             )
-            ->create(['qtd_notificacoes' => 0]);
+            ->create([
+                'pmoc' => false,
+                'qtd_notificacoes' => 0,
+            ]);
 
         // Já tem um agendamento de higienização.
         OrderService::factory()->create([
@@ -92,6 +99,7 @@ class NotificationSelectionTest extends TestCase
                 'airConditioners'
             )
             ->create([
+                'pmoc' => false,
                 'qtd_notificacoes' => 1,
                 'ultima_notificacao' => now()->subWeek() // é spam, não pode
             ]);
@@ -104,8 +112,22 @@ class NotificationSelectionTest extends TestCase
                 'airConditioners'
             )
             ->create([
+                'pmoc' => false,
                 'qtd_notificacoes' => 2, // limite de notificações excedido
                 'ultima_notificacao' => now()->subMonths(3)
+            ]);
+
+        // --- Cenário 8: NÃO DEVE RECEBER (cliente PMOC) ---
+        $client8 = Client::factory()
+            ->has(AirConditioning::factory()->state([
+                'prox_higienizacao' => now()->addDay() // dentro da data
+            ]),
+                'airConditioners'
+            )
+            ->create([
+                'pmoc' => true,
+                'qtd_notificacoes' => 0,
+                'ultima_notificacao' => null
             ]);
 
         $this->artisan('app:send-whatsapp-reminders')
@@ -119,13 +141,14 @@ class NotificationSelectionTest extends TestCase
             return $job->client->id === $client2->id;
         });
 
-        Bus::assertNotDispatched(SendWhatsappRemindersJob::class, function ($job) use ($client3, $client4, $client5, $client6, $client7) {
+        Bus::assertNotDispatched(SendWhatsappRemindersJob::class, function ($job) use ($client3, $client4, $client5, $client6, $client7, $client8) {
             return in_array($job->client->id, [
                 $client3->id,
                 $client4->id,
                 $client5->id,
                 $client6->id,
                 $client7->id,
+                $client8->id,
             ]);
         });
     }

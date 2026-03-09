@@ -32,6 +32,7 @@ class ClientFactory extends Factory
         // Iniciam como null.
         $tipoPessoa = null;
         $documento = null;
+        $inicioPmoc = null;
 
         if ($temPmoc) {
             $tipoPessoa = $isComercial ? PersonTypes::JURIDICA->value : PersonTypes::FISICA->value;
