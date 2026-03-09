@@ -250,7 +250,7 @@ class ClientsManager extends Component
                 'pmoc' => $this->pmoc,
                 'tipo_pessoa' => $tipoPessoaFinal,
                 'documento' => $documentoFinal,
-                'inicio_pmoc' => $inicioPmocFinal,
+                'inicio_pmoc' => $inicioPmocFinal ?: null,
             ],
             [
                 'cep' => $this->cep,
@@ -340,7 +340,7 @@ class ClientsManager extends Component
                     'pmoc' => $this->pmoc,
                     'tipo_pessoa' => $tipoPessoaFinal,
                     'documento' => $documentoFinal,
-                    'inicio_pmoc' => $inicioPmocFinal,
+                    'inicio_pmoc' => $inicioPmocFinal ?: null,
                 ],
                 [
                     'cep' => $this->cep,
