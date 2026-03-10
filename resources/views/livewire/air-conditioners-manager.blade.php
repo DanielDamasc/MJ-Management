@@ -162,7 +162,7 @@
                                                 <label class="block mb-1 text-sm font-medium text-primary-700 dark:text-gray-300">
                                                     Área Climatizada (m²)
                                                 </label>
-                                                <input type="number" wire:model="area_climatizada" min="0" placeholder="Ex: 25"
+                                                <input type="number" step="0.1" wire:model="area_climatizada" min="0" placeholder="Ex: 25"
                                                     class="bg-primary-50 dark:bg-gray-900 border border-primary-200 dark:border-gray-600 text-primary-900 dark:text-white text-sm rounded-lg focus:ring-secondary-500 focus:border-secondary-500 block w-full p-2.5">
                                                 @error('area_climatizada') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                             </div>
