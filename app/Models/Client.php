@@ -61,6 +61,34 @@ class Client extends Model
         );
     }
 
+    protected function documento(): Attribute
+    {
+        return Attribute::make(
+            get: function(?string $value) {
+                // Para caso de valor nulo.
+                if (!$value) {
+                    return $value;
+                }
+
+                // Tamanho da string.
+                $tamanho = strlen($value);
+
+                // Formatação para CPF.
+                if ($tamanho == 11 && $this->tipo_pessoa == PersonTypes::FISICA) {
+                    return preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $value);
+                }
+
+                // Formatação para CNPJ.
+                if ($tamanho == 14 && $this->tipo_pessoa == PersonTypes::JURIDICA) {
+                    return preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $value);
+                }
+
+                // Fallback de proteção.
+                return $value;
+            }
+        );
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

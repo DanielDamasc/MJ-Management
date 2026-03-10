@@ -14,6 +14,19 @@
             Livewire.on('notify-error', (msg) => {
                 this.showNotification(msg, 'error');
             });
+
+            {{-- Integração com controllers tradicionais. --}}
+            @if (session('notify-success'))
+                this.$nextTick(() => {
+                    this.showNotification('{{ session('notify-success') }}', 'success');
+                });
+            @endif
+
+            @if (session('notify-error'))
+                this.$nextTick(() => {
+                    this.showNotification('{{ session('notify-error') }}', 'error');
+                });
+            @endif
         },
 
         showNotification(msg, type) {

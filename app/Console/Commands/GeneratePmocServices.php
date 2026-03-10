@@ -59,12 +59,14 @@ class GeneratePmocServices extends Command
 
                     // Calcula a quantidade de meses para contratos já vigentes.
                     // O cálculo considera meses diferentes, independente do dia, como 1 mês de diferença.
-                    $mesesDeContrato = (($hoje->year - $dataInicio->year) * 12) + ($hoje->month - $dataInicio->month);
+                    $mesesPassados = (($hoje->year - $dataInicio->year) * 12) + ($hoje->month - $dataInicio->month);
 
-                    // Caso o contrato seja neste mês ou no futuro, ignora toda a regra de negócio.
-                    if ($mesesDeContrato <= 0) {
+                    // Caso o contrato inicie em um mês futuro, ignora e vai para o próximo cliente.
+                    if ($mesesPassados < 0) {
                         continue;
                     }
+
+                    $mesReferencia = $mesesPassados + 1;
 
                     // Agrupa os equipamentos do cliente pelo plano de manutenção.
                     $equipamentosPorPlano = $cliente->airConditioners->groupBy('plano_id');
@@ -90,7 +92,7 @@ class GeneratePmocServices extends Command
                             }
 
                             // A tarefa entra neste mês caso o resto da divisão dos meses pela periodicidade seja 0.
-                            if ($mesesDeContrato % $periodicidade == 0) {
+                            if ($mesReferencia % $periodicidade == 0) {
                                 // true indica os checkboxes das tarefas que serão marcados.
                                 $tarefasDoMes[$tarefa->id] = true;
                             }
