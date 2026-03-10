@@ -18,4 +18,14 @@ enum PmocPeriodicidade: int
             self::ANUAL => 'Anual',
         };
     }
+
+    public function firstLetter()
+    {
+        return match($this) {
+            self::MENSAL => 'M',
+            self::TRIMESTRAL => 'T',
+            self::SEMESTRAL => 'S',
+            self::ANUAL => 'A',
+        };
+    }
 }

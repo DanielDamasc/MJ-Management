@@ -10,6 +10,7 @@ use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
@@ -100,6 +101,11 @@ final class ClientTable extends PowerGridComponent
     public function actions(Client $row): array
     {
         return [
+            Button::add('gerar-pmoc')
+                ->slot(Blade::render('<x-heroicon-o-document-arrow-down class="w-5 h-5" />'))
+                ->class('p-1 transition-colors text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300')
+                ->route('pmoc.pdf', ['id' => $row->id], '_blank'),
+
             Button::add('details')
                 ->slot(Blade::render('<x-heroicon-m-square-3-stack-3d class="w-5 h-5" />'))
                 ->class('p-1 transition-colors text-auxiliar-400 hover:text-auxiliar-600 dark:text-auxiliar-400 dark:hover:text-auxiliar-300')
@@ -117,15 +123,12 @@ final class ClientTable extends PowerGridComponent
         ];
     }
 
-    /*
     public function actionRules($row): array
     {
        return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
+            Rule::button('gerar-pmoc')
+                ->when(fn($row) => (bool) $row->pmoc != true)
                 ->hide(),
         ];
     }
-    */
 }

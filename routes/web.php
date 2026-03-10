@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\OrderServiceController;
 use App\Livewire\AirConditionersManager;
 use App\Livewire\ClientsManager;
@@ -50,6 +51,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/colaboradores', EmployeeManager::class)->name('colaboradores');
         Route::get('/logs', LogsManager::class)->name('logs');
         Route::get('/ordem-servico/{id}/pdf', [OrderServiceController::class, 'gerarPDF'])->name('os.pdf');
+        Route::get('/cliente/{id}/pmoc/pdf', [ClientController::class, 'gerarPmoc'])->name('pmoc.pdf');
         Route::get('/pmoc', PmocManager::class)->name('pmoc');
     });
 
